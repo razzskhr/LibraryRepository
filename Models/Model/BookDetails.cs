@@ -11,11 +11,11 @@ namespace Models
     public class BookDetails
     {
         [BsonId]
-        public ObjectId Id { get; set; }
+        public ObjectId? Id { get; set; }
 
 
         [BsonElement("isbnNumber")]
-        public ISBNNumber ISBNNumber { get; set; }
+        public List<ISBNNumber> ISBNNumber { get; set; }
 
         [BsonElement("name")]
         public string Name { get; set; }
@@ -46,6 +46,9 @@ namespace Models
 
         [BsonElement("lastUpdated")]
         public DateTime LastUpdated { get; set; }
+
+        [BsonIgnore]
+        public string id { get; set; }
 
     }
     public class ISBNNumber

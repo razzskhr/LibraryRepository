@@ -50,6 +50,8 @@
     <Compile Include="Model\LoginDetails.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Model\UserDetails.cs" />
+    <Compile Include="Response.cs" />
+    <Compile Include="ResultType.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
