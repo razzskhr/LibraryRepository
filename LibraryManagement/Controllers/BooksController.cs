@@ -14,13 +14,19 @@ namespace LibraryManagement.Controllers
 {
     public class BooksController : ApiController
     {
+        private IBooksRepository booksRepository;
+
+        public BooksController(IBooksRepository booksRepository)
+        {
+            this.booksRepository = booksRepository;
+        }
+
         // GET: api/Books
         public async Task<List<BookDetails>> Get()
         {
             List<BookDetails> bookDetails = null;
             try
             {
-                BooksRepository booksRepository = new BooksRepository();
                 bookDetails = await booksRepository.GetAllBooks();
             }
             catch (Exception ex)

@@ -60,10 +60,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BooksService\BooksRepository.cs" />
+    <Compile Include="IServiceRepo\IBooksRepository.cs" />
+    <Compile Include="IServiceRepo\IUserRepository.cs" />
+    <Compile Include="ServiceRepo\BooksRepository.cs" />
     <Compile Include="DatabaseConnection\LibManagementConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UserService\UserRepository.cs" />
+    <Compile Include="ServiceRepo\UserRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Models\Models.csproj">
@@ -71,9 +73,7 @@
       <Name>Models</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ConfigService\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />

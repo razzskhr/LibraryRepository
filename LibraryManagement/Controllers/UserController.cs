@@ -1,4 +1,5 @@
 ﻿using Models;
+using ServiceRepository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,13 @@ namespace LibraryManagement.Controllers
 {
     public class UserController : ApiController
     {
+        private IUserRepository userRepository;
+
+        public UserController(IUserRepository userRepository)
+        {
+            this.userRepository = userRepository;
+        }
+
         // GET: api/User
         public async Task<List<UserDetails>> Get()
         {
