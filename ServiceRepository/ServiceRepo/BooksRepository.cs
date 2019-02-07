@@ -31,7 +31,8 @@ namespace ServiceRepository
                 
                 if (bookDetails.id!= null)
                 {
-                    var book = await todoTaskCollection.FindAsync(new BsonDocument("_id",new ObjectId( bookDetails.id)));
+                    var doc =  todoTaskCollection.Find(new BsonDocument("_id",new ObjectId( bookDetails.id))).Project("{ISBNNumber:1}").FirstOrDefault().AddRange(bookDetails.ISBNNumber.FirstOrDefault().ToBsonDocument());
+                   
                    await todoTaskCollection.UpdateOneAsync(a => a.Id == bookDetails.Id, Builders<BookDetails>.Update.AddToSet(x => x.ISBNNumber, bookDetails.ISBNNumber.FirstOrDefault()));
                 }
                 await todoTaskCollection.InsertOneAsync(bookDetails);
