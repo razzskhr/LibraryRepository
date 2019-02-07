@@ -44,7 +44,7 @@ namespace LibraryManagement.Controllers
         public async Task<IHttpActionResult> Post([FromBody]BookDetails bookDetails)
         {
             try
-           {
+            {
                 
             BooksRepository booksRepository = new BooksRepository();
             var result = await booksRepository.AddNewBook(bookDetails);
