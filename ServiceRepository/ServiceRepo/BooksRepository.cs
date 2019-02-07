@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ServiceRepository
 {
-    public class BooksRepository
+    public class BooksRepository : IBooksRepository
     {
         public async Task<List<BookDetails>> GetAllBooks()
         {
