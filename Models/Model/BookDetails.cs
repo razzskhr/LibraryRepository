@@ -11,8 +11,7 @@ namespace Models
     public class BookDetails
     {
         [BsonId]
-        public ObjectId? Id { get; set; }
-
+        public ObjectId Id { get; set; }
 
         [BsonElement("isbnNumber")]
         public List<ISBNNumber> ISBNNumber { get; set; }
@@ -27,7 +26,7 @@ namespace Models
         public string PublishingYear { get; set; }
 
         [BsonElement("numberOfCopies")]
-        public int NumberOfCopies { get; set; }
+        public long NumberOfCopies { get; set; }
 
         [BsonElement("availableCopies")]
         public int AvailableCopies { get; set; }
@@ -46,13 +45,16 @@ namespace Models
 
         [BsonElement("lastUpdated")]
         public DateTime LastUpdated { get; set; }
-
+        
         [BsonIgnore]
         public string id { get; set; }
 
     }
     public class ISBNNumber
     {
+        [BsonIgnore]
+        public string id { get; set; }
+
         [BsonElement("trackNo")]
         public string TrackNo { get; set; }
 
@@ -64,6 +66,9 @@ namespace Models
 
         [BsonElement("requestForBlock")]
         public string RequestForBlock { get; set; }
+
+        [BsonElement("created")]
+        public DateTime Created { get; set; }
     }
 
     public class NotificationDetails
