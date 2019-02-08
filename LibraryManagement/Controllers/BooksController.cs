@@ -9,18 +9,22 @@ using MongoDB.Driver;
 using System.Web.Http;
 using Models;
 using ServiceRepository;
+using Microsoft.ApplicationInsights;
 using Newtonsoft.Json;
 using System.Text;
+using Loggers;
 
 namespace LibraryManagement.Controllers
 {
     public class BooksController : ApiController
     {
         private IBooksRepository booksRepository;
-
-        public BooksController(IBooksRepository booksRepository)
+        private ILoggers loggers;
+        TelemetryClient telemetry = new TelemetryClient();
+        public BooksController(IBooksRepository booksRepository, ILoggers loggers)
         {
             this.booksRepository = booksRepository;
+            this.loggers = loggers;
         }
 
         // GET: api/Books
@@ -33,8 +37,7 @@ namespace LibraryManagement.Controllers
             }
             catch (Exception ex)
             {
-
-                throw ex;
+                loggers.LogError(ex);
             }
 
             return bookDetails;
@@ -59,12 +62,13 @@ namespace LibraryManagement.Controllers
             }
             catch (Exception ex)
             {
+                loggers.LogError(ex);
                 return NotFound();
             }
         }
 
         // PUT: api/Books/5
-            public void Put(int id, [FromBody]string value)
+        public void Put(int id, [FromBody]string value)
         {
         }
 
