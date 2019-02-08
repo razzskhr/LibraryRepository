@@ -9,11 +9,8 @@ namespace Loggers
 {
     public class Logger : ILoggers
     {
-        private TelemetryClient telemetryClient;
-        public Logger()
-        {
-            telemetryClient = new TelemetryClient();
-        }
+        private TelemetryClient telemetryClient= new TelemetryClient();
+       
         public void LogError(Exception ex)
         {
             telemetryClient.TrackException(ex);

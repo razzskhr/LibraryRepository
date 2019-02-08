@@ -20,7 +20,6 @@ namespace LibraryManagement.Controllers
     {
         private IBooksRepository booksRepository;
         private ILoggers loggers;
-        TelemetryClient telemetry = new TelemetryClient();
         public BooksController(IBooksRepository booksRepository, ILoggers loggers)
         {
             this.booksRepository = booksRepository;
