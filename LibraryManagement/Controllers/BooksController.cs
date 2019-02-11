@@ -12,6 +12,7 @@ using ServiceRepository;
 using Microsoft.ApplicationInsights;
 using Newtonsoft.Json;
 using System.Text;
+using LibraryManagement.Helpers;
 using Loggers;
 
 namespace LibraryManagement.Controllers
@@ -48,16 +49,42 @@ namespace LibraryManagement.Controllers
             return "values123";
         }
 
+        [HttpPost]
+        [Route("api/Books/AddNewCategoryBook")]
         // POST: api/Books
-        public async Task<IHttpActionResult> Post([FromBody]BookDetails bookDetails)
+        public async Task<IHttpActionResult> AddNewCategoryBook([FromBody]BookDetails bookDetails)
+        {
+            try
+            {              
+                BooksRepository booksRepository = new BooksRepository();
+                var result = await booksRepository.AddNewBook(bookDetails);
+                if(result != null & result.Any())
+                {                    
+                    return Ok(result);
+                }
+                else
+                {
+                    return NotFound();
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
+        }
+        
+        [HttpPost]
+        [Route("api/Books/AddISBNDetails")]
+        // POST: api/Books
+        public async Task<IHttpActionResult> AddISBNDetails([FromBody]ISBNNumber isbnDetails)
         {
             try
             {
-                
-            BooksRepository booksRepository = new BooksRepository();
-            var result = await booksRepository.AddNewBook(bookDetails);
-            
-            return Ok();
+                BooksRepository booksRepository = new BooksRepository();
+                var result = await booksRepository.AddSubCategoryToExistingBook(isbnDetails);
+
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -67,28 +94,39 @@ namespace LibraryManagement.Controllers
         }
 
         // PUT: api/Books/5
-        public void Put(int id, [FromBody]string value)
+        public async Task<IHttpActionResult> Put([FromBody]BookDetails bookDetails)
         {
+            try
+            {
+                BooksRepository booksRepository = new BooksRepository();
+                var result = await booksRepository.UpdateBookDetails(bookDetails);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return NotFound();
+            }
         }
 
         //DELETE: api/Books/5
-        //public async Task<HttpResponseMessage> Delete(int bookISBN)
-        //{
-        //    try
-        //    {
-        //        BooksRepository booksRepository = new BooksRepository();
-        //        var result = await booksRepository.DeleteBookDetails(bookISBN);
-        //        if (result)
-        //        {
-        //            return new HttpResponseMessage() { StatusCode = HttpStatusCode.OK };
-        //        }
-        //        return new HttpResponseMessage() { StatusCode = HttpStatusCode.BadRequest };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return new HttpResponseMessage() { StatusCode = HttpStatusCode.BadRequest, Content = new StringContent(JsonConvert.SerializeObject(ex.Message)) };
-        //    }
+        public async Task<HttpResponseMessage> Delete(int bookISBN)
+        {
+            try
+            {
+                BooksRepository booksRepository = new BooksRepository();
+                var result = await booksRepository.DeleteBookDetails(bookISBN);
+                if (result)
+                {
+                    return new HttpResponseMessage() { StatusCode = HttpStatusCode.OK };
+                }
+                return new HttpResponseMessage() { StatusCode = HttpStatusCode.BadRequest };
+            }
+            catch (Exception ex)
+            {
+                return new HttpResponseMessage() { StatusCode = HttpStatusCode.BadRequest, Content = new StringContent(JsonConvert.SerializeObject(ex.Message)) };
+            }
 
-        //}
+        }
     }
 }
