@@ -2,6 +2,7 @@
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,15 +14,19 @@ namespace Models
         [BsonId]
         public ObjectId Id { get; set; }
 
+
         [BsonElement("isbnNumber")]
         public List<ISBNNumber> ISBNNumber { get; set; }
 
+        [Required]
         [BsonElement("name")]
         public string Name { get; set; }
 
+        [Required]
         [BsonElement("author")]
         public string Author { get; set; }
 
+        [Required]
         [BsonElement("publishingYear")]
         public string PublishingYear { get; set; }
 
@@ -55,12 +60,14 @@ namespace Models
         [BsonIgnore]
         public string id { get; set; }
 
+        [Required]
         [BsonElement("trackNo")]
         public string TrackNo { get; set; }
 
         [BsonElement("occupied")]
         public bool Occupied { get; set; }
 
+        [Required]
         [BsonElement("edition")]
         public string Edition { get; set; }
 
@@ -73,6 +80,7 @@ namespace Models
 
     public class NotificationDetails
     {
+        [EmailAddress]
         [BsonElement("email")]
         public string Email { get; set; }
 

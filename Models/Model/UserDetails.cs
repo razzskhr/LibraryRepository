@@ -2,6 +2,7 @@
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
@@ -13,6 +14,7 @@ namespace Models
         [BsonId]
         public ObjectId Id { get; set; }
 
+        [Required]
         [BsonElement("firstName")]
         public string FirstName { get; set; }
 
@@ -20,18 +22,24 @@ namespace Models
         [BsonElement("middleName")]
         public string MiddleName { get; set; }
 
+        [Required]
         [BsonElement("lastName")]
         public string LastName { get; set; }
 
+        [Required]
         [BsonElement("username")]
         public string UserName { get; set; }
 
+        [Required]
+        [EmailAddress]
         [BsonElement("email")]
         public string Email { get; set; }
 
+        [Required]
         [BsonElement("dob")]
         public DateTime DateofBirth { get; set; }
 
+        [Required]
         [BsonElement("gender")]
         public string Gender { get; set; }
 
@@ -45,6 +53,7 @@ namespace Models
         [BsonElement("lastUpdated")]
         public DateTime LastUpdated { get; set; }
 
+        [Required]
         [BsonElement("roleType")]
         public RoleType RoleType { get; set; }
 

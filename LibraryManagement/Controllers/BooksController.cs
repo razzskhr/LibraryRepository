@@ -55,18 +55,23 @@ namespace LibraryManagement.Controllers
         public async Task<IHttpActionResult> AddNewCategoryBook([FromBody]BookDetails bookDetails)
         {
             try
-            {              
-                BooksRepository booksRepository = new BooksRepository();
-                var result = await booksRepository.AddNewBook(bookDetails);
-                if(result != null & result.Any())
-                {                    
-                    return Ok(result);
+            {
+                if (ModelState.IsValid)
+                {
+                    BooksRepository booksRepository = new BooksRepository();
+                    var result = await booksRepository.AddNewBook(bookDetails);
+                    if (result != null & result.Any())
+                    {
+                        return Ok(result);
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
                 }
                 else
-                {
-                    return NotFound();
-                }
-                
+                    return BadRequest(ModelState);
+
             }
             catch (Exception ex)
             {
@@ -74,7 +79,7 @@ namespace LibraryManagement.Controllers
                 return InternalServerError();
             }
         }
-        
+
         [HttpPost]
         [Route("api/Books/AddISBNDetails")]
         // POST: api/Books
