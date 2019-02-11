@@ -70,6 +70,7 @@ namespace LibraryManagement.Controllers
             }
             catch (Exception ex)
             {
+                loggers.LogError(ex);
                 return InternalServerError();
             }
         }
@@ -105,6 +106,7 @@ namespace LibraryManagement.Controllers
             }
             catch (Exception ex)
             {
+                loggers.LogError(ex);
                 return NotFound();
             }
         }
@@ -124,6 +126,7 @@ namespace LibraryManagement.Controllers
             }
             catch (Exception ex)
             {
+                loggers.LogError(ex);
                 return new HttpResponseMessage() { StatusCode = HttpStatusCode.BadRequest, Content = new StringContent(JsonConvert.SerializeObject(ex.Message)) };
             }
 

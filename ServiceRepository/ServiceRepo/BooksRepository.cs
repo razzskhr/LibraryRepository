@@ -13,13 +13,21 @@ namespace ServiceRepository
     {
         public async Task<List<BookDetails>> GetAllBooks()
         {
-            List<BookDetails> bookList = new List<BookDetails>();
-            var database = LibManagementConnection.GetConnection();
-            var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
-            var docs = await todoTaskCollection.FindAsync(new BsonDocument());
-            await docs.ForEachAsync(doc => bookList.Add(doc));
+            try
+            {
+                List<BookDetails> bookList = new List<BookDetails>();
+                var database = LibManagementConnection.GetConnection();
+                var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
+                var docs = await todoTaskCollection.FindAsync(new BsonDocument());
+                await docs.ForEachAsync(doc => bookList.Add(doc));
 
-            return bookList;
+                return bookList;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
         }
 
         public async Task<bool> AddSubCategoryToExistingBook(ISBNNumber isbnDetails)
@@ -44,17 +52,6 @@ namespace ServiceRepository
                     {
                         return false;
                     }
-
-                    //var doc = todoTaskCollection.Find(new BsonDocument("_id", new ObjectId(bookDetails.id)));
-                    ////List<BookDetails> bookList = new List<BookDetails>();
-                    ////await doc.ForEachAsync(docs => bookList.Add(docs));
-                    //var doc1 = doc.Project("{isbnNumber:1, _id:0}").FirstOrDefault();
-                    //;
-                    //var bsonElement = new BsonElement("isbnNumber", bookDetails.ISBNNumber.FirstOrDefault().ToBsonDocument());
-                    //var doc2 = doc1.Add(bsonElement);
-
-                    //await todoTaskCollection.UpdateOneAsync(a => a.Id == bookDetails.Id, Builders<BookDetails>.Update.AddToSet(x => x.ISBNNumber, bookDetails.ISBNNumber.FirstOrDefault()));
-                    
                 }
                 else
                 {
