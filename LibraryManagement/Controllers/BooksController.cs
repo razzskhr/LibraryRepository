@@ -9,19 +9,22 @@ using MongoDB.Driver;
 using System.Web.Http;
 using Models;
 using ServiceRepository;
+using Microsoft.ApplicationInsights;
 using Newtonsoft.Json;
 using System.Text;
 using LibraryManagement.Helpers;
+using Loggers;
 
 namespace LibraryManagement.Controllers
 {
     public class BooksController : ApiController
     {
         private IBooksRepository booksRepository;
-
-        public BooksController(IBooksRepository booksRepository)
+        private ILoggers loggers;
+        public BooksController(IBooksRepository booksRepository, ILoggers loggers)
         {
             this.booksRepository = booksRepository;
+            this.loggers = loggers;
         }
 
         // GET: api/Books
@@ -34,8 +37,7 @@ namespace LibraryManagement.Controllers
             }
             catch (Exception ex)
             {
-
-                throw ex;
+                loggers.LogError(ex);
             }
 
             return bookDetails;
@@ -53,25 +55,31 @@ namespace LibraryManagement.Controllers
         public async Task<IHttpActionResult> AddNewCategoryBook([FromBody]BookDetails bookDetails)
         {
             try
-            {              
-                BooksRepository booksRepository = new BooksRepository();
-                var result = await booksRepository.AddNewBook(bookDetails);
-                if(result != null & result.Any())
-                {                    
-                    return Ok(result);
+            {
+                if (ModelState.IsValid)
+                {
+                    BooksRepository booksRepository = new BooksRepository();
+                    var result = await booksRepository.AddNewBook(bookDetails);
+                    if (result != null & result.Any())
+                    {
+                        return Ok(result);
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
                 }
                 else
-                {
-                    return NotFound();
-                }
-                
+                    return BadRequest(ModelState);
+
             }
             catch (Exception ex)
             {
+                loggers.LogError(ex);
                 return InternalServerError();
             }
         }
-        
+
         [HttpPost]
         [Route("api/Books/AddISBNDetails")]
         // POST: api/Books
@@ -86,6 +94,7 @@ namespace LibraryManagement.Controllers
             }
             catch (Exception ex)
             {
+                loggers.LogError(ex);
                 return NotFound();
             }
         }
@@ -102,6 +111,7 @@ namespace LibraryManagement.Controllers
             }
             catch (Exception ex)
             {
+                loggers.LogError(ex);
                 return NotFound();
             }
         }
@@ -121,6 +131,7 @@ namespace LibraryManagement.Controllers
             }
             catch (Exception ex)
             {
+                loggers.LogError(ex);
                 return new HttpResponseMessage() { StatusCode = HttpStatusCode.BadRequest, Content = new StringContent(JsonConvert.SerializeObject(ex.Message)) };
             }
 
