@@ -37,10 +37,10 @@ namespace ServiceRepository
                 var database = LibManagementConnection.GetConnection();
                 var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
 
-                if (isbnDetails.id != null)
+                if (isbnDetails.BookID != null)
                 {                    
                     isbnDetails.Created = System.DateTime.Now;
-                    ObjectId objectId = ObjectId.Parse(isbnDetails.id);
+                    ObjectId objectId = ObjectId.Parse(isbnDetails.BookID);
                     var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Where(x => x.Id == objectId));
                     var update = Builders<BookDetails>.Update.Push("isbnNumber", isbnDetails).Inc("numberOfCopies", 1);
                     var result = await todoTaskCollection.FindOneAndUpdateAsync(builders, update);
@@ -68,16 +68,24 @@ namespace ServiceRepository
         {
             try
             {
-                var database = LibManagementConnection.GetConnection();
-                var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
-                ObjectId objectId = ObjectId.Parse(bookDetails?.id);
-                var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Where(x => x.Id == objectId));
-                var update = Builders<BookDetails>.Update.Set("name", bookDetails?.Name).Set("author",bookDetails?.Author).Set("publishingYear",bookDetails?.PublishingYear).Set("image",bookDetails?.Image).Set("lastUpdated", System.DateTime.UtcNow);                
-
-                var result = await todoTaskCollection.FindOneAndUpdateAsync(builders, update);
-                if (result != null)
+                if (bookDetails.BookID != null)
                 {
-                    return true;
+                    var database = LibManagementConnection.GetConnection();
+                    var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
+                    ObjectId objectId = ObjectId.Parse(bookDetails.BookID);
+                    var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Where(x => x.Id == objectId));
+                    var update = Builders<BookDetails>.Update.Set("name", bookDetails?.Name).Set("author", bookDetails?.Author).Set("publishingYear", bookDetails?.PublishingYear).Set("image", bookDetails?.Image).Set("lastUpdated", System.DateTime.UtcNow);
+
+                    var result = await todoTaskCollection.FindOneAndUpdateAsync(builders, update);
+
+                    if (result != null)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
@@ -90,7 +98,33 @@ namespace ServiceRepository
             }
         }
 
-        public async Task<string> AddNewBook(BookDetails bookDetails)
+        ////public async Task<bool> UpdateISBNDetails(ISBNNumber isbnDetails)
+        ////{
+        ////    try
+        ////    {
+        ////        var database = LibManagementConnection.GetConnection();
+        ////        var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
+        ////        ObjectId objectId = ObjectId.Parse(isbnDetails.id);
+        ////        var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Where(x => x.Id == objectId));
+        ////        var update = Builders<BookDetails>.Update.Set("name", bookDetails?.Name).Set("author", bookDetails?.Author).Set("publishingYear", bookDetails?.PublishingYear).Set("image", bookDetails?.Image).Set("lastUpdated", System.DateTime.UtcNow);
+
+        ////        var result = await todoTaskCollection.FindOneAndUpdateAsync(builders, update);
+        ////        if (result != null)
+        ////        {
+        ////            return true;
+        ////        }
+        ////        else
+        ////        {
+        ////            return false;
+        ////        }
+        ////    }
+        ////    catch (Exception ex)
+        ////    {
+        ////        throw ex;
+        ////    }
+        ////}
+        
+        public async Task<BookDetails> AddNewBook(BookDetails bookDetails)
         {
             try
             {
@@ -102,8 +136,8 @@ namespace ServiceRepository
                 bookDetails.LastUpdated = System.DateTime.Now;
                 bookDetails.NumberOfCopies = 1;
                 await todoTaskCollection.InsertOneAsync(bookDetails);
-                var newBookId = bookDetails.Id.ToString();
-                return newBookId;
+                
+                return bookDetails;
             }
             catch (Exception ex)
             {
@@ -111,13 +145,18 @@ namespace ServiceRepository
             }
         }
 
-        public async Task<bool> DeleteBookDetails(int bookISBN)
+        public async Task<bool> DeleteBookDetails(ISBNNumber isbnDetails)
         {
             try
             {
                 var database = LibManagementConnection.GetConnection();
                 var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
-                await todoTaskCollection.DeleteOneAsync(new BsonDocument("isbnNumber", bookISBN));
+                ObjectId objectId = ObjectId.Parse(isbnDetails.BookID);
+
+                var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Eq(x => x.Id, objectId));
+                var update = Builders<BookDetails>.Update.PullFilter("isbnNumber", Builders<BsonDocument>.Filter.Eq("trackNo", isbnDetails.TrackNo));
+
+                var result = await todoTaskCollection.FindOneAndUpdateAsync(builders, update);
                 return true;
             }
             catch (Exception ex)

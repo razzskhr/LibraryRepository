@@ -25,7 +25,7 @@ namespace LibraryManagement.Controllers
         }
 
         // POST: api/Registration
-        public async Task Post(UserDetails user)
+        public async Task Post([FromBody]UserDetails user)
         {
             try
             {
@@ -48,7 +48,6 @@ namespace LibraryManagement.Controllers
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
 

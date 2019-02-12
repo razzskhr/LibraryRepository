@@ -10,7 +10,6 @@ namespace Models
 {
     public class UserDetails
     {
-
         [BsonId]
         public ObjectId Id { get; set; }
 
@@ -41,7 +40,7 @@ namespace Models
 
         [Required]
         [BsonElement("gender")]
-        public string Gender { get; set; }
+        public GenderType Gender { get; set; }
 
         [BsonElement("created")]
         public DateTime Created { get; set; }
@@ -62,7 +61,6 @@ namespace Models
 
         [BsonIgnore]
         public string Password { get; set; }
-
     }
     public class IssueBooks
     {

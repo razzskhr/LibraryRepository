@@ -17,6 +17,7 @@ using Loggers;
 
 namespace LibraryManagement.Controllers
 {
+    [Authorize]
     public class BooksController : ApiController
     {
         private IBooksRepository booksRepository;
@@ -60,7 +61,7 @@ namespace LibraryManagement.Controllers
                 {
                     BooksRepository booksRepository = new BooksRepository();
                     var result = await booksRepository.AddNewBook(bookDetails);
-                    if (result != null & result.Any())
+                    if (result != null)
                     {
                         return Ok(result);
                     }
@@ -117,12 +118,12 @@ namespace LibraryManagement.Controllers
         }
 
         //DELETE: api/Books/5
-        public async Task<HttpResponseMessage> Delete(int bookISBN)
+        public async Task<HttpResponseMessage> Delete([FromBody]ISBNNumber isbnDetails)
         {
             try
             {
                 BooksRepository booksRepository = new BooksRepository();
-                var result = await booksRepository.DeleteBookDetails(bookISBN);
+                var result = await booksRepository.DeleteBookDetails(isbnDetails);
                 if (result)
                 {
                     return new HttpResponseMessage() { StatusCode = HttpStatusCode.OK };

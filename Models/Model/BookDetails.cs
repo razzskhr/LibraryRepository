@@ -15,7 +15,6 @@ namespace Models
         [BsonId]
         public ObjectId Id { get; set; }
 
-
         [BsonElement("isbnNumber")]
         public List<ISBNNumber> ISBNNumber { get; set; }
 
@@ -51,17 +50,15 @@ namespace Models
 
         [BsonElement("lastUpdated")]
         public DateTime LastUpdated { get; set; }
-
-        [JsonIgnore]
+      
         [BsonIgnore]
-        public string id { get; set; }
+        public string BookID { get; set; }
 
     }
     public class ISBNNumber
     {
         [BsonIgnore]
-        public string id { get; set; }
-
+        public string BookID { get; set; }
         [Required]
         [BsonElement("trackNo")]
         public string TrackNo { get; set; }

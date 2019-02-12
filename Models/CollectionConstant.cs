@@ -20,4 +20,10 @@ namespace Models
         Student,
         Admin
     }
+
+    public enum GenderType
+    {
+        Male,
+        Female
+    }
 }
