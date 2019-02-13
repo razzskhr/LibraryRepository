@@ -17,6 +17,7 @@ namespace LibraryManagement
 
             // e.g. container.RegisterType<ITestService, TestService>();
             container.RegisterType<ILoggers, Logger>();
+            container.RegisterType<IConfigRepository, ConfigRepository>();
             container.RegisterType<IUserRepository, UserRepository>();
             container.RegisterType<IBooksRepository, BooksRepository>();
 

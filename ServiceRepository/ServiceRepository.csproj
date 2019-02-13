@@ -81,11 +81,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IServiceRepo\IBooksRepository.cs" />
+    <Compile Include="IServiceRepo\IConfigRepository.cs" />
     <Compile Include="IServiceRepo\IUserRepository.cs" />
     <Compile Include="SendGridEmailService.cs" />
     <Compile Include="ServiceRepo\BooksRepository.cs" />
     <Compile Include="DatabaseConnection\LibManagementConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceRepo\ConfigRepository.cs" />
     <Compile Include="ServiceRepo\UserRepository.cs" />
   </ItemGroup>
   <ItemGroup>
