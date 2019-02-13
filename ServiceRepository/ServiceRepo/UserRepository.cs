@@ -21,10 +21,10 @@ namespace ServiceRepository
                 var docs = await todoTaskCollection.FindAsync(new BsonDocument());
                 await docs.ForEachAsync(doc => userDetails.Add(doc));
                 return userDetails;
+
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }
@@ -50,7 +50,7 @@ namespace ServiceRepository
                 }
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }

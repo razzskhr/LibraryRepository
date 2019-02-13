@@ -10,5 +10,14 @@ namespace ServiceRepository
     public interface IBooksRepository
     {
         Task<List<BookDetails>> GetAllBooks();
+
+        Task<Response<string>> AddSubCategoryToExistingBook(ISBNNumber isbnDetails);
+
+        Task<bool> UpdateBookDetails(BookDetails bookDetails);
+
+        Task<BookDetails> AddNewBook(BookDetails bookDetails);
+
+        Task<bool> DeleteBookDetails(ISBNNumber isbnDetails);
+
     }
 }

@@ -40,7 +40,7 @@ namespace LibraryManagement.Controllers
             return userDetails;
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         [Route("api/GetUserClaims")]
         public UserDetails GetUserClaims()

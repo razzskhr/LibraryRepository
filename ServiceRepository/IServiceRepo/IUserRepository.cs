@@ -12,5 +12,7 @@ namespace ServiceRepository
         Task<List<UserDetails>> GetAllUsers();
 
         Task<bool> RegisterUser(LoginDetails userLoginDetails, UserDetails userdetails);
+
+
     }
 }

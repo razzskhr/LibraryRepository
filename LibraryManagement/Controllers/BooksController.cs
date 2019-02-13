@@ -17,7 +17,7 @@ using Loggers;
 
 namespace LibraryManagement.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class BooksController : ApiController
     {
         private IBooksRepository booksRepository;
@@ -27,7 +27,7 @@ namespace LibraryManagement.Controllers
             this.booksRepository = booksRepository;
             this.loggers = loggers;
         }
-
+        [Authorize(Roles = "Student,Admin")]
         // GET: api/Books
         public async Task<List<BookDetails>> Get()
         {
@@ -59,7 +59,6 @@ namespace LibraryManagement.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    BooksRepository booksRepository = new BooksRepository();
                     var result = await booksRepository.AddNewBook(bookDetails);
                     if (result != null)
                     {
@@ -88,7 +87,6 @@ namespace LibraryManagement.Controllers
         {
             try
             {
-                BooksRepository booksRepository = new BooksRepository();
                 var result = await booksRepository.AddSubCategoryToExistingBook(isbnDetails);
                 if (result.StatusCode != HttpStatusCode.OK)
                 {
@@ -108,7 +106,6 @@ namespace LibraryManagement.Controllers
         {
             try
             {
-                BooksRepository booksRepository = new BooksRepository();
                 var result = await booksRepository.UpdateBookDetails(bookDetails);
 
                 return Ok();
@@ -125,7 +122,6 @@ namespace LibraryManagement.Controllers
         {
             try
             {
-                BooksRepository booksRepository = new BooksRepository();
                 var result = await booksRepository.DeleteBookDetails(isbnDetails);
                 if (result)
                 {
