@@ -54,6 +54,7 @@
     <Compile Include="Model\EmailContract.cs" />
     <Compile Include="Model\EmailServiceException.cs" />
     <Compile Include="Model\LoginDetails.cs" />
+    <Compile Include="Model\RoleDetails.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Model\UserDetails.cs" />
     <Compile Include="Response.cs" />

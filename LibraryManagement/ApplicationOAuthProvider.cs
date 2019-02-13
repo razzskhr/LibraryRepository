@@ -1,6 +1,8 @@
-﻿using Microsoft.Owin.Security.OAuth;
+﻿using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.OAuth;
 using Models;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 using ServiceRepository;
 using System;
 using System.Collections.Generic;
@@ -34,13 +36,7 @@ namespace LibraryManagement
                 currentUser = loginsList.FirstOrDefault();
                 var users = await userCollection.FindAsync(x => x.UserID == currentUser.UserID);
                 var usersList = await users.ToListAsync();
-                user = usersList.FirstOrDefault();
-
-                ////var builders = Builders<LoginDetails>.Filter.And(Builders<LoginDetails>.Filter.Where(x => x.UserName == context.UserName && x.Password == context.Password));
-                ////currentUser = todoTaskCollection.FindAsync(builders);
-                ////currentUser = entity.Logins.FirstOrDefault(x => x.Username == context.UserName && x.Password == context.Password).ID;
-
-                ////user = entity.Users.FirstOrDefault(x => x.ID == currentUser);
+                user = usersList.FirstOrDefault();                
 
             }
             catch (Exception e)
@@ -58,6 +54,12 @@ namespace LibraryManagement
                 identity.AddClaim(new Claim("UserName", user.UserName));
                 identity.AddClaim(new Claim("UserId", user.UserID));
                 identity.AddClaim(new Claim("LoggedOn", DateTime.Now.ToString()));
+                identity.AddClaim(new Claim(ClaimTypes.Role, user.RoleType.ToString()));
+                var additionalData = new AuthenticationProperties(new Dictionary<string, string> { 
+                {
+                    "role", JsonConvert.SerializeObject(user.RoleType.ToString())
+                }});
+                var token = new AuthenticationTicket(identity, additionalData);
                 context.Validated(identity);
             }
             else

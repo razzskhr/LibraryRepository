@@ -84,19 +84,22 @@ namespace LibraryManagement.Controllers
         [HttpPost]
         [Route("api/Books/AddISBNDetails")]
         // POST: api/Books
-        public async Task<IHttpActionResult> AddISBNDetails([FromBody]ISBNNumber isbnDetails)
+        public async Task<HttpResponseMessage> AddISBNDetails([FromBody]ISBNNumber isbnDetails)
         {
             try
             {
                 BooksRepository booksRepository = new BooksRepository();
                 var result = await booksRepository.AddSubCategoryToExistingBook(isbnDetails);
-
-                return Ok();
+                if (result.StatusCode != HttpStatusCode.OK)
+                {
+                    return new HttpResponseMessage() { StatusCode = result.StatusCode, Content = new JsonContent(result.Message) };
+                }
+                return new HttpResponseMessage() { StatusCode = HttpStatusCode.OK };
             }
             catch (Exception ex)
             {
                 loggers.LogError(ex);
-                return NotFound();
+                return new HttpResponseMessage() { StatusCode = HttpStatusCode.InternalServerError, Content = new StringContent(JsonConvert.SerializeObject(ex.Message)) };
             }
         }
 
@@ -133,7 +136,7 @@ namespace LibraryManagement.Controllers
             catch (Exception ex)
             {
                 loggers.LogError(ex);
-                return new HttpResponseMessage() { StatusCode = HttpStatusCode.BadRequest, Content = new StringContent(JsonConvert.SerializeObject(ex.Message)) };
+                return new HttpResponseMessage() { StatusCode = HttpStatusCode.InternalServerError, Content = new StringContent(JsonConvert.SerializeObject(ex.Message)) };
             }
 
         }

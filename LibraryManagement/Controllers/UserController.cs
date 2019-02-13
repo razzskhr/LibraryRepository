@@ -23,7 +23,7 @@ namespace LibraryManagement.Controllers
             this.loggers = loggers;
         }
 
-        [Authorize]
+        [Authorize(Roles ="Admin")]
         // GET: api/User
         public async Task<List<UserDetails>> Get()
         {

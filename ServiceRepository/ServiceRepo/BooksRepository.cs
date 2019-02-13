@@ -30,32 +30,35 @@ namespace ServiceRepository
             }
         }
 
-        public async Task<bool> AddSubCategoryToExistingBook(ISBNNumber isbnDetails)
+        public async Task<Response<string>> AddSubCategoryToExistingBook(ISBNNumber isbnDetails)
         {
             try
             {
                 var database = LibManagementConnection.GetConnection();
                 var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
 
-                if (isbnDetails.BookID != null)
+                ObjectId objectId = ObjectId.Parse(isbnDetails.BookID);
+                var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Where(x => x.Id == objectId));
+                var bookDetails = await todoTaskCollection.Find(builders).ToListAsync();
+                var IsISBNExists = bookDetails.All(x => x.ISBNNumber.All(y => y.TrackNo == isbnDetails.TrackNo));
+               
+                if (!IsISBNExists && isbnDetails.BookID != null)
                 {                    
-                    isbnDetails.Created = System.DateTime.Now;
-                    ObjectId objectId = ObjectId.Parse(isbnDetails.BookID);
-                    var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Where(x => x.Id == objectId));
+                    isbnDetails.Created = System.DateTime.Now;                    
                     var update = Builders<BookDetails>.Update.Push("isbnNumber", isbnDetails).Inc("numberOfCopies", 1);
                     var result = await todoTaskCollection.FindOneAndUpdateAsync(builders, update);
                     if (result != null)
                     {
-                        return true;
+                        return new Response<string>() {StatusCode = System.Net.HttpStatusCode.OK };
                     }
                     else
                     {
-                        return false;
+                        return new Response<string>() { StatusCode = System.Net.HttpStatusCode.NotFound };
                     }
                 }
                 else
                 {
-                    return false;
+                    return new Response<string>() { StatusCode = System.Net.HttpStatusCode.BadRequest, Message = "ISBN Number Already Exists" };
                 }
             }
             catch(Exception ex)

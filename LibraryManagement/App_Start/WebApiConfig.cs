@@ -20,9 +20,7 @@ namespace LibraryManagement
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
-
-            var cors = new EnableCorsAttribute("*", "*", "*");
-            config.EnableCors(cors);
+            
         }
     }
 }
