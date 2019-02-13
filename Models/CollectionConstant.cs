@@ -12,6 +12,7 @@ namespace Models
         public const string User_Collection = "userDetails";
         public const string Config_Collection = "configDetails";
         public const string Login_Collection = "loginDetails";
+        public const string Roles_Collection = "RolesDetails";
 
     }
 
@@ -19,5 +20,11 @@ namespace Models
     {
         Student,
         Admin
+    }
+
+    public enum GenderType
+    {
+        Male,
+        Female
     }
 }

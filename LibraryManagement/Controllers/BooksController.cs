@@ -9,20 +9,25 @@ using MongoDB.Driver;
 using System.Web.Http;
 using Models;
 using ServiceRepository;
+using Microsoft.ApplicationInsights;
 using Newtonsoft.Json;
 using System.Text;
+using LibraryManagement.Helpers;
+using Loggers;
 
 namespace LibraryManagement.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class BooksController : ApiController
     {
         private IBooksRepository booksRepository;
-
-        public BooksController(IBooksRepository booksRepository)
+        private ILoggers loggers;
+        public BooksController(IBooksRepository booksRepository, ILoggers loggers)
         {
             this.booksRepository = booksRepository;
+            this.loggers = loggers;
         }
-
+        [Authorize(Roles = "Student,Admin")]
         // GET: api/Books
         public async Task<List<BookDetails>> Get()
         {
@@ -33,8 +38,7 @@ namespace LibraryManagement.Controllers
             }
             catch (Exception ex)
             {
-
-                throw ex;
+                loggers.LogError(ex);
             }
 
             return bookDetails;
@@ -46,46 +50,91 @@ namespace LibraryManagement.Controllers
             return "values123";
         }
 
+        [HttpPost]
+        [Route("api/Books/AddNewCategoryBook")]
         // POST: api/Books
-        public async Task<IHttpActionResult> Post([FromBody]BookDetails bookDetails)
+        public async Task<IHttpActionResult> AddNewCategoryBook([FromBody]BookDetails bookDetails)
         {
             try
             {
-                
-            BooksRepository booksRepository = new BooksRepository();
-            var result = await booksRepository.AddNewBook(bookDetails);
-            
-            return Ok();
+                if (ModelState.IsValid)
+                {
+                    var result = await booksRepository.AddNewBook(bookDetails);
+                    if (result != null)
+                    {
+                        return Ok(result);
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+                }
+                else
+                    return BadRequest(ModelState);
+
             }
             catch (Exception ex)
             {
-                return NotFound();
+                loggers.LogError(ex);
+                return InternalServerError();
+            }
+        }
+
+        [HttpPost]
+        [Route("api/Books/AddISBNDetails")]
+        // POST: api/Books
+        public async Task<HttpResponseMessage> AddISBNDetails([FromBody]ISBNNumber isbnDetails)
+        {
+            try
+            {
+                var result = await booksRepository.AddSubCategoryToExistingBook(isbnDetails);
+                if (result.StatusCode != HttpStatusCode.OK)
+                {
+                    return new HttpResponseMessage() { StatusCode = result.StatusCode, Content = new JsonContent(result.Message) };
+                }
+                return new HttpResponseMessage() { StatusCode = HttpStatusCode.OK };
+            }
+            catch (Exception ex)
+            {
+                loggers.LogError(ex);
+                return new HttpResponseMessage() { StatusCode = HttpStatusCode.InternalServerError, Content = new StringContent(JsonConvert.SerializeObject(ex.Message)) };
             }
         }
 
         // PUT: api/Books/5
-            public void Put(int id, [FromBody]string value)
+        public async Task<IHttpActionResult> Put([FromBody]BookDetails bookDetails)
         {
+            try
+            {
+                var result = await booksRepository.UpdateBookDetails(bookDetails);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                loggers.LogError(ex);
+                return NotFound();
+            }
         }
 
         //DELETE: api/Books/5
-        //public async Task<HttpResponseMessage> Delete(int bookISBN)
-        //{
-        //    try
-        //    {
-        //        BooksRepository booksRepository = new BooksRepository();
-        //        var result = await booksRepository.DeleteBookDetails(bookISBN);
-        //        if (result)
-        //        {
-        //            return new HttpResponseMessage() { StatusCode = HttpStatusCode.OK };
-        //        }
-        //        return new HttpResponseMessage() { StatusCode = HttpStatusCode.BadRequest };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return new HttpResponseMessage() { StatusCode = HttpStatusCode.BadRequest, Content = new StringContent(JsonConvert.SerializeObject(ex.Message)) };
-        //    }
+        public async Task<HttpResponseMessage> Delete([FromBody]ISBNNumber isbnDetails)
+        {
+            try
+            {
+                var result = await booksRepository.DeleteBookDetails(isbnDetails);
+                if (result)
+                {
+                    return new HttpResponseMessage() { StatusCode = HttpStatusCode.OK };
+                }
+                return new HttpResponseMessage() { StatusCode = HttpStatusCode.BadRequest };
+            }
+            catch (Exception ex)
+            {
+                loggers.LogError(ex);
+                return new HttpResponseMessage() { StatusCode = HttpStatusCode.InternalServerError, Content = new StringContent(JsonConvert.SerializeObject(ex.Message)) };
+            }
 
-        //}
+        }
     }
 }

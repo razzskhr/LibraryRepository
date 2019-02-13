@@ -1,10 +1,12 @@
-﻿using Models;
+﻿using Loggers;
+using Models;
 using ServiceRepository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -13,27 +15,47 @@ namespace LibraryManagement.Controllers
     public class UserController : ApiController
     {
         private IUserRepository userRepository;
+        private ILoggers loggers;
 
-        public UserController(IUserRepository userRepository)
+        public UserController(IUserRepository userRepository, ILoggers loggers)
         {
             this.userRepository = userRepository;
+            this.loggers = loggers;
         }
 
+        [Authorize(Roles ="Admin")]
         // GET: api/User
         public async Task<List<UserDetails>> Get()
         {
-            List<UserDetails> userList = new List<UserDetails>();
+            List<UserDetails> userDetails = null;
             try
             {
-               
+                userDetails = await userRepository.GetAllUsers();
             }
             catch (Exception ex)
             {
-
-                throw ex;
+                loggers.LogError(ex);
             }
 
-            return userList;
+            return userDetails;
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        [Route("api/GetUserClaims")]
+        public UserDetails GetUserClaims()
+        {
+            var identityClaims = (ClaimsIdentity)User.Identity;
+            IEnumerable<Claim> claims = identityClaims.Claims;
+            UserDetails user = new UserDetails()
+            {
+                Email = identityClaims.FindFirst("Email").Value,
+                FirstName = identityClaims.FindFirst("FirstName").Value,
+                LastName = identityClaims.FindFirst("LastName").Value,
+                UserName = identityClaims.FindFirst("UserName").Value,
+                UserID = identityClaims.FindFirst("UserId").Value,
+            };
+            return user;
         }
 
         // GET: api/User/5

@@ -1,3 +1,4 @@
+using Loggers;
 using ServiceRepository;
 using System.Web.Http;
 using Unity;
@@ -15,7 +16,8 @@ namespace LibraryManagement
             // it is NOT necessary to register your controllers
 
             // e.g. container.RegisterType<ITestService, TestService>();
-
+            container.RegisterType<ILoggers, Logger>();
+            container.RegisterType<IConfigRepository, ConfigRepository>();
             container.RegisterType<IUserRepository, UserRepository>();
             container.RegisterType<IBooksRepository, BooksRepository>();
 

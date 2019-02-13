@@ -2,6 +2,7 @@
 using ServiceRepository;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -25,7 +26,7 @@ namespace LibraryManagement.Controllers
         }
 
         // POST: api/Registration
-        public async Task Post(UserDetails user)
+        public async Task<IHttpActionResult> Post([FromBody]UserDetails user)
         {
             try
             {
@@ -43,13 +44,20 @@ namespace LibraryManagement.Controllers
 
 
                 UserRepository userRepository = new UserRepository();
-                await userRepository.RegisterUser(userLoginDetails, userdetails);
+                var res = await userRepository.RegisterUser(userLoginDetails, userdetails);
+                if(res)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest("User already exists");
+                }
 
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-
-                throw ex;
+                return InternalServerError();
             }
 
         }

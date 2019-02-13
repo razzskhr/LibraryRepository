@@ -1,7 +1,9 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,23 +13,25 @@ namespace Models
     public class BookDetails
     {
         [BsonId]
-        public ObjectId? Id { get; set; }
-
+        public ObjectId Id { get; set; }
 
         [BsonElement("isbnNumber")]
         public List<ISBNNumber> ISBNNumber { get; set; }
 
+        [Required]
         [BsonElement("name")]
         public string Name { get; set; }
 
+        [Required]
         [BsonElement("author")]
         public string Author { get; set; }
 
+        [Required]
         [BsonElement("publishingYear")]
         public string PublishingYear { get; set; }
 
         [BsonElement("numberOfCopies")]
-        public int NumberOfCopies { get; set; }
+        public long NumberOfCopies { get; set; }
 
         [BsonElement("availableCopies")]
         public int AvailableCopies { get; set; }
@@ -46,28 +50,36 @@ namespace Models
 
         [BsonElement("lastUpdated")]
         public DateTime LastUpdated { get; set; }
-
+      
         [BsonIgnore]
-        public string id { get; set; }
+        public string BookID { get; set; }
 
     }
     public class ISBNNumber
     {
+        [BsonIgnore]
+        public string BookID { get; set; }
+        [Required]
         [BsonElement("trackNo")]
         public string TrackNo { get; set; }
 
         [BsonElement("occupied")]
         public bool Occupied { get; set; }
 
+        [Required]
         [BsonElement("edition")]
         public string Edition { get; set; }
 
         [BsonElement("requestForBlock")]
         public string RequestForBlock { get; set; }
+
+        [BsonElement("created")]
+        public DateTime Created { get; set; }
     }
 
     public class NotificationDetails
     {
+        [EmailAddress]
         [BsonElement("email")]
         public string Email { get; set; }
 

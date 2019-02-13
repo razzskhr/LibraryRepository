@@ -13,49 +13,158 @@ namespace ServiceRepository
     {
         public async Task<List<BookDetails>> GetAllBooks()
         {
-            List<BookDetails> bookList = new List<BookDetails>();
-            var database = LibManagementConnection.GetConnection();
-            var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
-            var docs = await todoTaskCollection.FindAsync(new BsonDocument());
-            await docs.ForEachAsync(doc => bookList.Add(doc));
+            try
+            {
+                List<BookDetails> bookList = new List<BookDetails>();
+                var database = LibManagementConnection.GetConnection();
+                var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
+                var docs = await todoTaskCollection.FindAsync(new BsonDocument());
+                await docs.ForEachAsync(doc => bookList.Add(doc));
 
-            return bookList;
+                return bookList;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
         }
 
-        public async Task<bool> AddNewBook(BookDetails bookDetails)
+        public async Task<Response<string>> AddSubCategoryToExistingBook(ISBNNumber isbnDetails)
         {
             try
             {
                 var database = LibManagementConnection.GetConnection();
                 var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
-                
-                if (bookDetails.id!= null)
-                {
-                    var doc =  todoTaskCollection.Find(new BsonDocument("_id",new ObjectId( bookDetails.id))).Project("{ISBNNumber:1}").FirstOrDefault().AddRange(bookDetails.ISBNNumber.FirstOrDefault().ToBsonDocument());
-                   
-                   await todoTaskCollection.UpdateOneAsync(a => a.Id == bookDetails.Id, Builders<BookDetails>.Update.AddToSet(x => x.ISBNNumber, bookDetails.ISBNNumber.FirstOrDefault()));
+
+                ObjectId objectId = ObjectId.Parse(isbnDetails.BookID);
+                var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Where(x => x.Id == objectId));
+                var bookDetails = await todoTaskCollection.Find(builders).ToListAsync();
+                var IsISBNExists = bookDetails.All(x => x.ISBNNumber.All(y => y.TrackNo == isbnDetails.TrackNo));
+               
+                if (!IsISBNExists && isbnDetails.BookID != null)
+                {                    
+                    isbnDetails.Created = System.DateTime.Now;                    
+                    var update = Builders<BookDetails>.Update.Push("isbnNumber", isbnDetails).Inc("numberOfCopies", 1);
+                    var result = await todoTaskCollection.FindOneAndUpdateAsync(builders, update);
+                    if (result != null)
+                    {
+                        return new Response<string>() {StatusCode = System.Net.HttpStatusCode.OK };
+                    }
+                    else
+                    {
+                        return new Response<string>() { StatusCode = System.Net.HttpStatusCode.NotFound };
+                    }
                 }
-                await todoTaskCollection.InsertOneAsync(bookDetails);
-                return true;
+                else
+                {
+                    return new Response<string>() { StatusCode = System.Net.HttpStatusCode.BadRequest, Message = "ISBN Number Already Exists" };
+                }
             }
             catch(Exception ex)
             {
-                return false;
+                throw ex;
             }
         }
 
-        public async Task<bool> DeleteBook(int bookISBN)
+        public async Task<bool> UpdateBookDetails(BookDetails bookDetails)
+        {
+            try
+            {
+                if (bookDetails.BookID != null)
+                {
+                    var database = LibManagementConnection.GetConnection();
+                    var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
+                    ObjectId objectId = ObjectId.Parse(bookDetails.BookID);
+                    var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Where(x => x.Id == objectId));
+                    var update = Builders<BookDetails>.Update.Set("name", bookDetails?.Name).Set("author", bookDetails?.Author).Set("publishingYear", bookDetails?.PublishingYear).Set("image", bookDetails?.Image).Set("lastUpdated", System.DateTime.UtcNow);
+
+                    var result = await todoTaskCollection.FindOneAndUpdateAsync(builders, update);
+
+                    if (result != null)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        ////public async Task<bool> UpdateISBNDetails(ISBNNumber isbnDetails)
+        ////{
+        ////    try
+        ////    {
+        ////        var database = LibManagementConnection.GetConnection();
+        ////        var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
+        ////        ObjectId objectId = ObjectId.Parse(isbnDetails.id);
+        ////        var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Where(x => x.Id == objectId));
+        ////        var update = Builders<BookDetails>.Update.Set("name", bookDetails?.Name).Set("author", bookDetails?.Author).Set("publishingYear", bookDetails?.PublishingYear).Set("image", bookDetails?.Image).Set("lastUpdated", System.DateTime.UtcNow);
+
+        ////        var result = await todoTaskCollection.FindOneAndUpdateAsync(builders, update);
+        ////        if (result != null)
+        ////        {
+        ////            return true;
+        ////        }
+        ////        else
+        ////        {
+        ////            return false;
+        ////        }
+        ////    }
+        ////    catch (Exception ex)
+        ////    {
+        ////        throw ex;
+        ////    }
+        ////}
+        
+        public async Task<BookDetails> AddNewBook(BookDetails bookDetails)
         {
             try
             {
                 var database = LibManagementConnection.GetConnection();
                 var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
-                await todoTaskCollection.DeleteOneAsync(new BsonDocument("ISBNNumber", bookISBN));
+                              
+                bookDetails.Created = System.DateTime.Now;
+                bookDetails.ISBNNumber.FirstOrDefault().Created = System.DateTime.Now;
+                bookDetails.LastUpdated = System.DateTime.Now;
+                bookDetails.NumberOfCopies = 1;
+                await todoTaskCollection.InsertOneAsync(bookDetails);
+                
+                return bookDetails;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<bool> DeleteBookDetails(ISBNNumber isbnDetails)
+        {
+            try
+            {
+                var database = LibManagementConnection.GetConnection();
+                var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
+                ObjectId objectId = ObjectId.Parse(isbnDetails.BookID);
+
+                var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Eq(x => x.Id, objectId));
+                var update = Builders<BookDetails>.Update.PullFilter("isbnNumber", Builders<BsonDocument>.Filter.Eq("trackNo", isbnDetails.TrackNo));
+
+                var result = await todoTaskCollection.FindOneAndUpdateAsync(builders, update);
                 return true;
             }
             catch (Exception ex)
             {
-                return false;
+                throw ex;
             }
         }
 

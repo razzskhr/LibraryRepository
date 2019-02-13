@@ -7,12 +7,9 @@ using System.Threading.Tasks;
 
 namespace ServiceRepository
 {
-    public interface IUserRepository
+    public interface IConfigRepository
     {
-        Task<List<UserDetails>> GetAllUsers();
-
-        Task<bool> RegisterUser(LoginDetails userLoginDetails, UserDetails userdetails);
-
-
+        Task<ConfigDetails> GetConfigDetails();
+        Task<bool> UpdateConfigDetails(ConfigDetails configDetails);
     }
 }
