@@ -59,6 +59,12 @@ namespace Models
         [BsonElement("userId")]
         public string UserID { get; set; }
 
+        [Required]
+        [Phone]
+        [BsonElement("phoneNo")]
+        public string PhoneNo { get; set; }
+
+        [Required]
         [BsonIgnore]
         public string Password { get; set; }
     }
