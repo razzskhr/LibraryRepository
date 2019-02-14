@@ -11,6 +11,8 @@ namespace ServiceRepository
     {
         Task<List<BookDetails>> GetAllBooks();
 
+        Task<List<BookDetails>> GetAllAvailableBooks();
+
         Task<Response<string>> AddSubCategoryToExistingBook(ISBNNumber isbnDetails);
 
         Task<bool> UpdateBookDetails(BookDetails bookDetails);

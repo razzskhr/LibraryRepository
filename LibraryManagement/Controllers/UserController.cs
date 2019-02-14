@@ -39,23 +39,32 @@ namespace LibraryManagement.Controllers
 
             return userDetails;
         }
-
-        [Authorize(Roles = "Admin")]
+        
         [HttpGet]
         [Route("api/GetUserClaims")]
-        public UserDetails GetUserClaims()
+        public IHttpActionResult GetUserClaims()
         {
-            var identityClaims = (ClaimsIdentity)User.Identity;
-            IEnumerable<Claim> claims = identityClaims.Claims;
-            UserDetails user = new UserDetails()
+            try
             {
-                Email = identityClaims.FindFirst("Email").Value,
-                FirstName = identityClaims.FindFirst("FirstName").Value,
-                LastName = identityClaims.FindFirst("LastName").Value,
-                UserName = identityClaims.FindFirst("UserName").Value,
-                UserID = identityClaims.FindFirst("UserId").Value,
-            };
-            return user;
+                var identityClaims = (ClaimsIdentity)User.Identity;
+                IEnumerable<Claim> claims = identityClaims.Claims;
+                var res = userRepository.GetLoggedInUserDetails(identityClaims.FindFirst("UserName").Value);
+                UserDetails user = new UserDetails()
+                {
+                    Email = identityClaims.FindFirst("Email").Value,
+                    FirstName = identityClaims.FindFirst("FirstName").Value,
+                    LastName = identityClaims.FindFirst("LastName").Value,
+                    UserName = identityClaims.FindFirst("UserName").Value,
+                    UserID = identityClaims.FindFirst("UserId").Value
+                };
+                user.RoleType = res.RoleType;
+                return Ok(user);
+            }
+            catch (Exception e)
+            {
+                loggers.LogError(e);
+                return InternalServerError();
+            }
         }
 
         // GET: api/User/5

@@ -25,7 +25,22 @@ namespace ServiceRepository
             }
             catch (Exception ex)
             {
+                throw ex;
+            }
+        }
 
+        public async Task<List<BookDetails>> GetAllAvailableBooks()
+        {
+            try
+            {
+                var database = LibManagementConnection.GetConnection();
+                var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
+                var docs = await todoTaskCollection.FindAsync(x => x.NumberOfCopies > 0);
+                var bookList = await docs.ToListAsync();
+                return bookList;
+            }
+            catch (Exception ex)
+            {
                 throw ex;
             }
         }
@@ -157,7 +172,7 @@ namespace ServiceRepository
                 ObjectId objectId = ObjectId.Parse(isbnDetails.BookID);
 
                 var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Eq(x => x.Id, objectId));
-                var update = Builders<BookDetails>.Update.PullFilter("isbnNumber", Builders<BsonDocument>.Filter.Eq("trackNo", isbnDetails.TrackNo));
+                var update = Builders<BookDetails>.Update.PullFilter("isbnNumber", Builders<BsonDocument>.Filter.Eq("trackNo", isbnDetails.TrackNo)).Inc("numberOfCopies", -1);
 
                 var result = await todoTaskCollection.FindOneAndUpdateAsync(builders, update);
                 return true;

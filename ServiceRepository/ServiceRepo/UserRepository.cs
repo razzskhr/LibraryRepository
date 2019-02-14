@@ -29,7 +29,25 @@ namespace ServiceRepository
             }
         }
 
-        public async Task<bool> RegisterUser(LoginDetails userLoginDetails, UserDetails userdetails)
+        public UserDetails GetLoggedInUserDetails(string username)
+        {
+            try
+            {
+                List<UserDetails> userDetails = new List<UserDetails>();
+                var database = LibManagementConnection.GetConnection();
+                var todoTaskCollection = database.GetCollection<UserDetails>(CollectionConstant.User_Collection);
+                var user = todoTaskCollection.Find(x => x.UserName == username).FirstOrDefault();
+                return user;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public async Task<Response<string>> RegisterUser(LoginDetails userLoginDetails, UserDetails userdetails)
         {
             try
             {                
@@ -42,11 +60,13 @@ namespace ServiceRepository
                 {
                     await loginCollection.InsertOneAsync(userLoginDetails);
                     await userCollection.InsertOneAsync(userdetails);
-                    return true;
+                    
+                        return new Response<string>() { StatusCode = System.Net.HttpStatusCode.OK };
+                    
                 }
                 else
                 {
-                    return false;
+                    return new Response<string>() { StatusCode = System.Net.HttpStatusCode.BadRequest, Message = "User Already Exists" };
                 }
 
             }

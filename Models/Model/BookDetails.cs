@@ -31,7 +31,7 @@ namespace Models
         public string PublishingYear { get; set; }
 
         [BsonElement("numberOfCopies")]
-        public long NumberOfCopies { get; set; }
+        public int NumberOfCopies { get; set; }
 
         [BsonElement("availableCopies")]
         public int AvailableCopies { get; set; }

@@ -17,7 +17,7 @@ using Loggers;
 
 namespace LibraryManagement.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    
     public class BooksController : ApiController
     {
         private IBooksRepository booksRepository;
@@ -27,29 +27,45 @@ namespace LibraryManagement.Controllers
             this.booksRepository = booksRepository;
             this.loggers = loggers;
         }
-        [Authorize(Roles = "Student,Admin")]
+
+        [Authorize]
+        [Route("api/Books/GetAllBooks")]
         // GET: api/Books
-        public async Task<List<BookDetails>> Get()
+        public async Task<IHttpActionResult> GetAllBooks()
         {
             List<BookDetails> bookDetails = null;
             try
             {
                 bookDetails = await booksRepository.GetAllBooks();
+                return Ok(bookDetails);
             }
             catch (Exception ex)
             {
                 loggers.LogError(ex);
+                return InternalServerError();
             }
 
-            return bookDetails;
         }
 
-        // GET: api/Books/5
-        public string Get(int id)
+        [Authorize]
+        [Route("api/Books/GetAllAvailableBooks")]
+        // GET: api/Books
+        public async Task<IHttpActionResult> GetAllAvailableBooks()
         {
-            return "values123";
+            List<BookDetails> bookDetails = null;
+            try
+            {
+                bookDetails = await booksRepository.GetAllAvailableBooks();
+                return Ok(bookDetails);
+            }
+            catch (Exception ex)
+            {
+                loggers.LogError(ex);
+                return InternalServerError();
+            }            
         }
-
+        
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [Route("api/Books/AddNewCategoryBook")]
         // POST: api/Books
@@ -80,6 +96,7 @@ namespace LibraryManagement.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [Route("api/Books/AddISBNDetails")]
         // POST: api/Books
@@ -101,6 +118,7 @@ namespace LibraryManagement.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         // PUT: api/Books/5
         public async Task<IHttpActionResult> Put([FromBody]BookDetails bookDetails)
         {
@@ -117,6 +135,7 @@ namespace LibraryManagement.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         //DELETE: api/Books/5
         public async Task<HttpResponseMessage> Delete([FromBody]ISBNNumber isbnDetails)
         {

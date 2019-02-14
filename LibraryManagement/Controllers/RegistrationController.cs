@@ -1,4 +1,5 @@
-﻿using Models;
+﻿using Loggers;
+using Models;
 using ServiceRepository;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,14 @@ namespace LibraryManagement.Controllers
 {
     public class RegistrationController : ApiController
     {
+        private IUserRepository userRepository;
+        private ILoggers loggers;
+
+        public RegistrationController(IUserRepository userRepository, ILoggers loggers)
+        {
+            this.userRepository = userRepository;
+            this.loggers = loggers;
+        }
         // GET: api/Registration
         public IEnumerable<string> Get()
         {
@@ -26,7 +35,7 @@ namespace LibraryManagement.Controllers
         }
 
         // POST: api/Registration
-        public async Task<IHttpActionResult> Post([FromBody]UserDetails user)
+        public async Task<HttpResponseMessage> Post([FromBody]UserDetails user)
         {
             try
             {
@@ -41,23 +50,26 @@ namespace LibraryManagement.Controllers
                 userdetails.Created = DateTime.Now;
                 userdetails.LastUpdated = DateTime.Now;
                 userdetails.Password = null;
-
-
-                UserRepository userRepository = new UserRepository();
+                
                 var res = await userRepository.RegisterUser(userLoginDetails, userdetails);
-                if(res)
+                if (res?.StatusCode != HttpStatusCode.OK)
                 {
-                    return Ok();
+                    return new HttpResponseMessage()
+                    {
+                        StatusCode = res.StatusCode,
+                        Content = new StringContent(res.Message)
+                    };
                 }
                 else
                 {
-                    return BadRequest("User already exists");
+                    return new HttpResponseMessage() { StatusCode = res.StatusCode};
                 }
 
             }
             catch (Exception e)
             {
-                return InternalServerError();
+                loggers.LogError(e);
+                return new HttpResponseMessage() { StatusCode = HttpStatusCode.InternalServerError};
             }
 
         }
