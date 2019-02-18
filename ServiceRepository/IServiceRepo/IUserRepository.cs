@@ -15,6 +15,8 @@ namespace ServiceRepository
 
         UserDetails GetLoggedInUserDetails(string username);
 
+        Task<List<string>> GetUserMailList();
+
         Task<bool> UpdatePassword(LoginDetails userLoginDetails);
     }
 }

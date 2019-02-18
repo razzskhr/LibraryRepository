@@ -73,6 +73,22 @@ namespace LibraryManagement.Controllers
             return "value";
         }
 
+        [HttpGet]
+        [Route("api/GetMailList")]
+        public async Task<List<string>> GetMailList()
+        {
+            var result = new List<string>();
+            try
+            {
+                 result = await userRepository.GetUserMailList();
+            }
+            catch (Exception ex)
+            {
+                loggers.LogError(ex);
+            }
+            return result;
+        }
+
         // POST: api/User
         public void Post([FromBody]string value)
         {

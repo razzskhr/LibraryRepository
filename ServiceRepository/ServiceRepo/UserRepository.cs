@@ -37,6 +37,23 @@ namespace ServiceRepository
             }
         }
 
+        public async Task<List<string>> GetUserMailList()
+        {
+            List<string> mailList = new List<string>();
+            try
+            {
+                var database = LibManagementConnection.GetConnection();
+                var todoTaskCollection = database.GetCollection<UserDetails>(CollectionConstant.User_Collection);
+                var docs = await todoTaskCollection.FindAsync(item => item.IssuedBooks.Any(x => (x.ReturnDate.Date - DateTime.Now.Date).Days <= 1));
+                await docs.ForEachAsync(item => mailList.Add(item.Email));
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return mailList;
+        }
+
         public UserDetails GetLoggedInUserDetails(string username)
         {
             try
@@ -57,8 +74,9 @@ namespace ServiceRepository
 
         public async Task<Response<string>> RegisterUser(LoginDetails userLoginDetails, UserDetails userdetails)
         {
+            //IClientSessionHandle session = null;
             try
-            {                
+            {
                 var database = LibManagementConnection.GetConnection();
                 var userCollection = database.GetCollection<UserDetails>(CollectionConstant.User_Collection);
                 var loginCollection = database.GetCollection<LoginDetails>(CollectionConstant.Login_Collection);
@@ -68,11 +86,13 @@ namespace ServiceRepository
                 userLoginDetails.Password = encryptedPassword;
                 if (loginsList?.Count == 0)
                 {
+                    //session = await database.Client.StartSessionAsync();
+                    //session.StartTransaction();
                     await loginCollection.InsertOneAsync(userLoginDetails);
                     await userCollection.InsertOneAsync(userdetails);
-                    
-                        return new Response<string>() { StatusCode = System.Net.HttpStatusCode.OK };
-                    
+                    //await session.CommitTransactionAsync();
+                    return new Response<string>() { StatusCode = System.Net.HttpStatusCode.OK };
+
                 }
                 else
                 {
@@ -82,6 +102,7 @@ namespace ServiceRepository
             }
             catch (Exception ex)
             {
+                //await session.AbortTransactionAsync();
                 throw ex;
             }
         }
