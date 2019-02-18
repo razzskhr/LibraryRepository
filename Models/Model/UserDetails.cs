@@ -49,7 +49,7 @@ namespace Models
 
         [BsonIgnoreIfNull]
         [BsonElement("issuedBooks")]
-        public IssueBooks IssuedBooks { get; set; }
+        public List<IssueBooks> IssuedBooks { get; set; }
 
         [BsonElement("lastUpdated")]
         public DateTime LastUpdated { get; set; }
