@@ -48,12 +48,12 @@ namespace ServiceRepository
 
         public async Task<Response<string>> AddSubCategoryToExistingBook(ISBNNumber isbnDetails)
         {
-            IClientSessionHandle session = null;
+            //IClientSessionHandle session = null;
             try
             {
                 var database = LibManagementConnection.GetConnection();
-                session = database.Client.StartSession();
-                session.StartTransaction();
+                //session = database.Client.StartSession();
+                //session.StartTransaction();
                 var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
 
                 ObjectId objectId = ObjectId.Parse(isbnDetails.BookID);
@@ -66,7 +66,7 @@ namespace ServiceRepository
                     isbnDetails.Created = System.DateTime.Now;                    
                     var update = Builders<BookDetails>.Update.Push("isbnNumber", isbnDetails).Inc("numberOfCopies", 1);
                     var result = await todoTaskCollection.FindOneAndUpdateAsync(builders, update);
-                    session.CommitTransaction();
+                    //session.CommitTransaction();
                     if (result != null)
                     {
                         return new Response<string>() {StatusCode = System.Net.HttpStatusCode.OK };
@@ -83,28 +83,28 @@ namespace ServiceRepository
             }
             catch(Exception ex)
             {
-                session?.AbortTransaction();
+                //session?.AbortTransaction();
                 throw ex;
             }
         }
 
         public async Task<bool> UpdateBookDetails(BookDetails bookDetails)
         {
-            IClientSessionHandle session = null;
+            //IClientSessionHandle session = null;
             try
             {
                 if (bookDetails.BookID != null)
                 {
                     var database = LibManagementConnection.GetConnection();
-                    session = database.Client.StartSession();
-                    session.StartTransaction();
+                    //session = database.Client.StartSession();
+                    //session.StartTransaction();
                     var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
                     ObjectId objectId = ObjectId.Parse(bookDetails.BookID);
                     var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Where(x => x.Id == objectId));
                     var update = Builders<BookDetails>.Update.Set("name", bookDetails?.Name).Set("author", bookDetails?.Author).Set("publishingYear", bookDetails?.PublishingYear).Set("image", bookDetails?.Image).Set("lastUpdated", System.DateTime.UtcNow);
 
                     var result = await todoTaskCollection.FindOneAndUpdateAsync(builders, update);
-                    session.CommitTransaction();
+                    //session.CommitTransaction();
                     if (result != null)
                     {
                         return true;
@@ -121,7 +121,7 @@ namespace ServiceRepository
             }
             catch (Exception ex)
             {
-                session?.AbortTransaction();
+                //session?.AbortTransaction();
                 throw ex;
             }
         }
@@ -154,12 +154,12 @@ namespace ServiceRepository
         
         public async Task<BookDetails> AddNewBook(BookDetails bookDetails)
         {
-            IClientSessionHandle session = null;
+            //IClientSessionHandle session = null;
             try
             {
                 var database = LibManagementConnection.GetConnection();
-                session = database.Client.StartSession();
-                session.StartTransaction();
+                //session = database.Client.StartSession();
+                //session.StartTransaction();
                 var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
                               
                 bookDetails.Created = System.DateTime.Now;
@@ -167,24 +167,24 @@ namespace ServiceRepository
                 bookDetails.LastUpdated = System.DateTime.Now;
                 bookDetails.NumberOfCopies = 1;
                 await todoTaskCollection.InsertOneAsync(bookDetails);
-                session.CommitTransaction();
+                //session.CommitTransaction();
                 return bookDetails;
             }
             catch (Exception ex)
             {
-                session.AbortTransaction();
+                //session.AbortTransaction();
                 throw ex;
             }
         }
 
         public async Task<bool> DeleteBookDetails(ISBNNumber isbnDetails)
         {
-            IClientSessionHandle session = null;
+            //IClientSessionHandle session = null;
             try
             {
                 var database = LibManagementConnection.GetConnection();
-                session = database.Client.StartSession();
-                session.StartTransaction();
+               // session = database.Client.StartSession();
+                //session.StartTransaction();
                 var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
                 ObjectId objectId = ObjectId.Parse(isbnDetails.BookID);
 
@@ -192,12 +192,12 @@ namespace ServiceRepository
                 var update = Builders<BookDetails>.Update.PullFilter("isbnNumber", Builders<BsonDocument>.Filter.Eq("trackNo", isbnDetails.TrackNo)).Inc("numberOfCopies", -1);
 
                 var result = await todoTaskCollection.FindOneAndUpdateAsync(builders, update);
-                session.CommitTransaction();
+                //session.CommitTransaction();
                 return true;
             }
             catch (Exception ex)
             {
-                session?.AbortTransaction();
+                //session?.AbortTransaction();
                 throw ex;
             }
         }

@@ -66,7 +66,7 @@ namespace ServiceRepository
 
         public async Task<Response<string>> RegisterUser(LoginDetails userLoginDetails, UserDetails userdetails)
         {
-            IClientSessionHandle session = null;
+            //IClientSessionHandle session = null;
             try
             {
                 var database = LibManagementConnection.GetConnection();
@@ -76,11 +76,11 @@ namespace ServiceRepository
                 var loginsList = await logins.ToListAsync();
                 if (loginsList?.Count == 0)
                 {
-                    session = await database.Client.StartSessionAsync();
-                    session.StartTransaction();
+                    //session = await database.Client.StartSessionAsync();
+                    //session.StartTransaction();
                     await loginCollection.InsertOneAsync(userLoginDetails);
                     await userCollection.InsertOneAsync(userdetails);
-                    await session.CommitTransactionAsync();
+                    //await session.CommitTransactionAsync();
                     return new Response<string>() { StatusCode = System.Net.HttpStatusCode.OK };
 
                 }
@@ -92,7 +92,7 @@ namespace ServiceRepository
             }
             catch (Exception ex)
             {
-                await session.AbortTransactionAsync();
+                //await session.AbortTransactionAsync();
                 throw ex;
             }
         }
