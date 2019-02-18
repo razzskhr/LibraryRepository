@@ -94,6 +94,10 @@
     <Compile Include="ServiceRepo\UserRepository.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{10107a2f-7e65-4d79-902c-a8ad1f6c8d8b}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Models\Models.csproj">
       <Project>{a6f31f5d-3751-4a50-9288-9581e1574328}</Project>
       <Name>Models</Name>

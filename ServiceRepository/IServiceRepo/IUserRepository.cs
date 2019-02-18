@@ -14,5 +14,7 @@ namespace ServiceRepository
         Task<Response<string>> RegisterUser(LoginDetails userLoginDetails, UserDetails userdetails);
 
         UserDetails GetLoggedInUserDetails(string username);
+
+        Task<bool> UpdatePassword(LoginDetails userLoginDetails);
     }
 }

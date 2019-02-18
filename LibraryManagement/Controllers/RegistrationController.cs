@@ -1,4 +1,5 @@
-﻿using Loggers;
+﻿using Common.EncryptionRepository;
+using Loggers;
 using Models;
 using ServiceRepository;
 using System;
@@ -16,11 +17,13 @@ namespace LibraryManagement.Controllers
     {
         private IUserRepository userRepository;
         private ILoggers loggers;
+        private IPasswordRepository passwordRepository;
 
-        public RegistrationController(IUserRepository userRepository, ILoggers loggers)
+        public RegistrationController(IUserRepository userRepository, ILoggers loggers,IPasswordRepository passwordRepository)
         {
             this.userRepository = userRepository;
             this.loggers = loggers;
+            this.passwordRepository = passwordRepository;
         }
         // GET: api/Registration
         public IEnumerable<string> Get()
@@ -35,41 +38,45 @@ namespace LibraryManagement.Controllers
         }
 
         // POST: api/Registration
-        public async Task<HttpResponseMessage> Post([FromBody]UserDetails user)
+        [HttpPost]
+        [Route("api/Registration/AddNewUser")]
+        public async Task<IHttpActionResult> AddNewUser([FromBody]UserDetails user)
         {
             try
             {
-                var userLoginDetails = new LoginDetails()
+                if (ModelState.IsValid)
                 {
-                    Password = user.Password,
-                    UserName = user.UserName,
-                    UserID = user.UserID,
-                   
-                };
-                var userdetails = user;
-                userdetails.Created = DateTime.Now;
-                userdetails.LastUpdated = DateTime.Now;
-                userdetails.Password = null;
-                
-                var res = await userRepository.RegisterUser(userLoginDetails, userdetails);
-                if (res?.StatusCode != HttpStatusCode.OK)
-                {
-                    return new HttpResponseMessage()
+                    var userLoginDetails = new LoginDetails()
                     {
-                        StatusCode = res.StatusCode,
-                        Content = new StringContent(res.Message)
+                        Password = user.Password,
+                        UserName = user.UserName,
+                        UserID = user.UserID,
+
                     };
+                    var userdetails = user;
+                    userdetails.Created = DateTime.Now;
+                    userdetails.LastUpdated = DateTime.Now;
+                    userdetails.Password = null;
+                    userdetails.RoleType = RoleType.Student;
+
+                    var res = await userRepository.RegisterUser(userLoginDetails, userdetails);
+                    if (res?.StatusCode != HttpStatusCode.OK)
+                    {
+                        return BadRequest(res.Message);
+                    }
+                    else
+                    {
+                        return Ok();
+                    }
                 }
                 else
-                {
-                    return new HttpResponseMessage() { StatusCode = res.StatusCode};
-                }
+                    return BadRequest(ModelState);
 
             }
             catch (Exception e)
             {
                 loggers.LogError(e);
-                return new HttpResponseMessage() { StatusCode = HttpStatusCode.InternalServerError};
+                return InternalServerError();
             }
 
         }
@@ -82,6 +89,19 @@ namespace LibraryManagement.Controllers
         // DELETE: api/Registration/5
         public void Delete(int id)
         {
+        }
+
+        //[Authorize]
+        [HttpPost]
+        [Route("api/Registration/ChangePassword")]
+        public async Task<IHttpActionResult> ChangePassword([FromBody]LoginDetails loginUserDetails)
+        {
+            var response = await userRepository.UpdatePassword(loginUserDetails);
+            if(response)
+            {
+                return Ok();
+            }
+            return BadRequest();
         }
     }
 }
