@@ -69,6 +69,12 @@ namespace Models
         [Required]
         [BsonIgnore]
         public string Password { get; set; }
+
+        [BsonElement("image")]
+        public string Image { get; set; }
+
+        [BsonIgnore]
+        public string FullName { get { return string.Concat(FirstName, " ", MiddleName, " ", LastName); } set { } }
     }
     public class IssueBooks
     {

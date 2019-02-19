@@ -15,6 +15,6 @@ namespace ServiceRepository
 
         UserDetails GetLoggedInUserDetails(string username);
 
-        Task<List<string>> GetUserMailList();
+        Task<IEnumerable<object>> GetUserMailList();
     }
 }

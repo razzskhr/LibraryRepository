@@ -75,18 +75,18 @@ namespace LibraryManagement.Controllers
 
         [HttpGet]
         [Route("api/GetMailList")]
-        public async Task<List<string>> GetMailList()
+        public async Task<IEnumerable<object>> GetMailList()
         {
-            var result = new List<string>();
             try
             {
-                 result = await userRepository.GetUserMailList();
+                var result = await userRepository.GetUserMailList();
+                return result;
             }
             catch (Exception ex)
             {
                 loggers.LogError(ex);
             }
-            return result;
+            return new List<object>();
         }
 
         // POST: api/User

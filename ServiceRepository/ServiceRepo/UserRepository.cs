@@ -29,21 +29,25 @@ namespace ServiceRepository
             }
         }
 
-        public async Task<List<string>> GetUserMailList()
+        public async Task<IEnumerable<object>> GetUserMailList()
         {
-            List<string> mailList = new List<string>();
+
             try
             {
-                var database = LibManagementConnection.GetConnection();
-                var todoTaskCollection = database.GetCollection<UserDetails>(CollectionConstant.User_Collection);
-                var docs = await todoTaskCollection.FindAsync(item => item.IssuedBooks.Any(x => (x.ReturnDate.Date - DateTime.Now.Date).Days <= 1));
-                await docs.ForEachAsync(item => mailList.Add(item.Email));
+                var result = await GetAllUsers();
+                var ss = (from user in result
+                          where user.IssuedBooks != null
+                          select new { user.Email, user.FullName,
+                          issuedBooks = (from book in user.IssuedBooks
+                                         where (book.ReturnDate.Date - DateTime.Now.Date).Days <= 1
+                                         select book)});
+                return ss;
+
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-            return mailList;
         }
 
         public UserDetails GetLoggedInUserDetails(string username)
