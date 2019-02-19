@@ -1,3 +1,4 @@
+using Common.EncryptionRepository;
 using Loggers;
 using ServiceRepository;
 using System.Web.Http;
@@ -20,6 +21,7 @@ namespace LibraryManagement
             container.RegisterType<IConfigRepository, ConfigRepository>();
             container.RegisterType<IUserRepository, UserRepository>();
             container.RegisterType<IBooksRepository, BooksRepository>();
+            container.RegisterType<IPasswordRepository,PasswordRepository>();
 
             GlobalConfiguration.Configuration.DependencyResolver = new UnityDependencyResolver(container);
         }

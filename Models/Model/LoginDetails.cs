@@ -22,5 +22,7 @@ namespace Models
         [BsonElement("userId")]
         public string UserID { get; set; }
 
+        [BsonIgnore]
+        public string OldPassword { get; set; }
     }
 }
