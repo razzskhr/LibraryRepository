@@ -1,4 +1,5 @@
-﻿using Microsoft.Owin.Security;
+﻿using Common.EncryptionRepository;
+using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.OAuth;
 using Models;
 using MongoDB.Driver;
@@ -15,6 +16,12 @@ namespace LibraryManagement
 {
     public class ApplicationOAuthProvider : OAuthAuthorizationServerProvider
     {
+        private IPasswordRepository passwordRepository;
+
+        public ApplicationOAuthProvider(IPasswordRepository passwordRepository)
+        {
+            this.passwordRepository = passwordRepository;
+        }
         public override async Task ValidateClientAuthentication(OAuthValidateClientAuthenticationContext context)
         {
             context.Validated();
@@ -24,14 +31,14 @@ namespace LibraryManagement
         {
             LoginDetails currentUser;
             UserDetails user = null;
-            
+            string encryptedPassword= await passwordRepository.GetEncryptedPassword(context.Password);
             try
             {
                 var database = LibManagementConnection.GetConnection();
                 var loginCollection = database.GetCollection<LoginDetails>(CollectionConstant.Login_Collection);
                 var userCollection = database.GetCollection<UserDetails>(CollectionConstant.User_Collection);
 
-                var logins = await loginCollection.FindAsync(x => x.UserName == context.UserName && x.Password == context.Password);
+                var logins = await loginCollection.FindAsync(x => x.UserName == context.UserName && x.Password == encryptedPassword);
                 var loginsList = await logins.ToListAsync();
                 currentUser = loginsList.FirstOrDefault();
                 var users = await userCollection.FindAsync(x => x.UserID == currentUser.UserID);

@@ -105,6 +105,25 @@ namespace LibraryManagement.Controllers
                 loggers.LogError(e);
                 return new HttpResponseMessage() { StatusCode = HttpStatusCode.InternalServerError };
             }
+        [HttpGet]
+        [Route("api/GetMailList")]
+        public async Task<IEnumerable<object>> GetMailList()
+        {
+            try
+            {
+                var result = await userRepository.GetUserMailList();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                loggers.LogError(ex);
+            }
+            return new List<object>();
+        }
+
+        // POST: api/User
+        public void Post([FromBody]string value)
+        {
         }
 
         // PUT: api/User/5

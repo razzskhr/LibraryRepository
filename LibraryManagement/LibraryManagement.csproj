@@ -394,6 +394,10 @@
     <Content Include="Scripts\jquery-3.3.1.min.map" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{10107A2F-7E65-4D79-902C-A8AD1F6C8D8B}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Loggers\Loggers.csproj">
       <Project>{291f9c54-ab04-4696-8d47-a3a0de0d5093}</Project>
       <Name>Loggers</Name>
