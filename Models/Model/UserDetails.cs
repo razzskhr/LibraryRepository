@@ -65,6 +65,9 @@ namespace Models
         [Phone]
         [BsonElement("phoneNumber")]
         public string PhoneNumber { get; set; }
+        
+        [BsonElement("image")]
+        public string Image { get; set; }
 
         [Required]
         [BsonIgnore]

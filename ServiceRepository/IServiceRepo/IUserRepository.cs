@@ -14,5 +14,8 @@ namespace ServiceRepository
         Task<Response<string>> RegisterUser(LoginDetails userLoginDetails, UserDetails userdetails);
 
         UserDetails GetLoggedInUserDetails(string username);
+
+        Task<Response<string>> InsertImageFileName(string UserName, string image);
+
     }
 }
