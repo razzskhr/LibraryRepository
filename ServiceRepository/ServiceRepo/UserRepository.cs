@@ -49,8 +49,11 @@ namespace ServiceRepository
             try
             {
                 var result = await GetAllUsers();
-                var ss = (from user in result
-                          where user.IssuedBooks != null
+                var issuedList = result.Where(x => x.IssuedBooks != null && x.IssuedBooks.Any());
+                var list = (from user in issuedList
+                         
+                          from book in user.IssuedBooks
+                          where (book.ReturnDate.Date - DateTime.Now.Date).Days <= 1
                           select new UserDetails
                           {
                               Email = user.Email,
@@ -61,7 +64,7 @@ namespace ServiceRepository
                                              where (book.ReturnDate.Date - DateTime.Now.Date).Days <= 1
                                              select book).ToList()
                           });
-                return ss;
+                return list;
 
             }
             catch (Exception ex)
