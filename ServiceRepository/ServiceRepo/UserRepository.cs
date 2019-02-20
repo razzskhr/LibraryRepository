@@ -38,7 +38,7 @@ namespace ServiceRepository
             }
         }
 
-        public async Task<IEnumerable<UserDetails>> GetUserMailList()
+        public async Task<List<string>> GetUserMailList()
         {
 
             try
@@ -46,19 +46,21 @@ namespace ServiceRepository
                 var result = await GetAllUsers();
                 var issuedList = result.Where(x => x.IssuedBooks != null && x.IssuedBooks.Any());
                 var list = (from user in issuedList
-                         
-                          from book in user.IssuedBooks
-                          where (book.ReturnDate.Date - DateTime.Now.Date).Days <= 1
-                          select new UserDetails
-                          {
-                              Email = user.Email,
-                              FirstName = user.FirstName,
-                              MiddleName = user.MiddleName,
-                              LastName = user.LastName,
-                              IssuedBooks = (from book in user.IssuedBooks
-                                             where (book.ReturnDate.Date - DateTime.Now.Date).Days <= 1
-                                             select book).ToList()
-                          });
+
+                            from book in user.IssuedBooks
+                            where (book.ReturnDate.Date - DateTime.Now.Date).Days <= 1
+                            select user.Email).ToList();
+                          //select new UserDetails
+                          //{
+                          //    Id =user.Id,
+                          //    Email = user.Email,
+                          //    FirstName = user.FirstName,
+                          //    MiddleName = user.MiddleName,
+                          //    LastName = user.LastName,
+                          //    IssuedBooks = (from book in user.IssuedBooks
+                          //                   where (book.ReturnDate.Date - DateTime.Now.Date).Days <= 1
+                          //                   select book).ToList()
+                          //});
                 return list;
 
             }

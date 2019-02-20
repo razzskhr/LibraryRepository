@@ -20,6 +20,6 @@ namespace ServiceRepository
 
         Task<Response<string>> InsertImageFileName(string UserName, string image);
 
-        Task<IEnumerable<UserDetails>> GetUserMailList();
+        Task<List<string>> GetUserMailList();
     }
 }
