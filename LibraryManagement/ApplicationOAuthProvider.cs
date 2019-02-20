@@ -17,7 +17,10 @@ namespace LibraryManagement
     public class ApplicationOAuthProvider : OAuthAuthorizationServerProvider
     {
         private IPasswordRepository passwordRepository;
+        public ApplicationOAuthProvider()
+        {
 
+        }
         public ApplicationOAuthProvider(IPasswordRepository passwordRepository)
         {
             this.passwordRepository = passwordRepository;
@@ -31,6 +34,7 @@ namespace LibraryManagement
         {
             LoginDetails currentUser;
             UserDetails user = null;
+            PasswordRepository passwordRepository = new PasswordRepository();
             string encryptedPassword= await passwordRepository.GetEncryptedPassword(context.Password);
             try
             {
