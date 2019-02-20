@@ -18,12 +18,7 @@ namespace ServiceRepository
 
         public UserRepository()
         {
-
-        }
-
-        public UserRepository(IPasswordRepository passwordRepository)
-        {
-            this.passwordRepository = passwordRepository;
+            this.passwordRepository = new PasswordRepository();
         }
         public async Task<List<UserDetails>> GetAllUsers()
         {
