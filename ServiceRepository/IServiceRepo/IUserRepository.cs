@@ -17,6 +17,6 @@ namespace ServiceRepository
 
 
         Task<bool> UpdatePassword(LoginDetails userLoginDetails);
-        Task<IEnumerable<object>> GetUserMailList();
+        Task<IEnumerable<UserDetails>> GetUserMailList();
     }
 }

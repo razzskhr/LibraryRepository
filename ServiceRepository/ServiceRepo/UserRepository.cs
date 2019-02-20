@@ -15,6 +15,11 @@ namespace ServiceRepository
     {
         private IPasswordRepository passwordRepository;
 
+        public UserRepository()
+        {
+
+        }
+
         public UserRepository(IPasswordRepository passwordRepository)
         {
             this.passwordRepository = passwordRepository;
@@ -37,7 +42,7 @@ namespace ServiceRepository
             }
         }
 
-        public async Task<IEnumerable<object>> GetUserMailList()
+        public async Task<IEnumerable<UserDetails>> GetUserMailList()
         {
 
             try
@@ -45,10 +50,16 @@ namespace ServiceRepository
                 var result = await GetAllUsers();
                 var ss = (from user in result
                           where user.IssuedBooks != null
-                          select new { user.Email, user.FullName,
-                          issuedBooks = (from book in user.IssuedBooks
-                                         where (book.ReturnDate.Date - DateTime.Now.Date).Days <= 1
-                                         select book)});
+                          select new UserDetails
+                          {
+                              Email = user.Email,
+                              FirstName = user.FirstName,
+                              MiddleName = user.MiddleName,
+                              LastName = user.LastName,
+                              IssuedBooks = (from book in user.IssuedBooks
+                                             where (book.ReturnDate.Date - DateTime.Now.Date).Days <= 1
+                                             select book).ToList()
+                          });
                 return ss;
 
             }
