@@ -47,7 +47,6 @@ namespace LibraryManagement.Controllers
             try
             {
                 var identityClaims = (ClaimsIdentity)User.Identity;
-                IEnumerable<Claim> claims = identityClaims.Claims;
                 var res = userRepository.GetLoggedInUserDetails(identityClaims.FindFirst("UserName").Value);
                 UserDetails user = new UserDetails()
                 {
@@ -71,6 +70,41 @@ namespace LibraryManagement.Controllers
         public string Get(int id)
         {
             return "value";
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("api/User/UploadImage")]
+        public async Task<HttpResponseMessage> UploadImage()
+        {
+            try
+            {
+                UploadImage image = new UploadImage();
+                var res = await image.UploadImageToAzure(Request.Content);
+                if (res.StatusCode != HttpStatusCode.OK)
+                {
+                    return new HttpResponseMessage() { StatusCode = res.StatusCode };
+                }
+                else
+                {
+                    var identityClaims = (ClaimsIdentity)User.Identity;
+                    var res1 = await userRepository.InsertImageFileName(identityClaims.FindFirst("UserName").Value, res.Message);
+                    if (res1.StatusCode != HttpStatusCode.OK)
+                    {
+                        return new HttpResponseMessage() { StatusCode = HttpStatusCode.BadRequest };
+                    }
+                    else
+                    {
+                        return new HttpResponseMessage() { StatusCode = HttpStatusCode.OK, Content = new StringContent(res.Message) };
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                loggers.LogError(e);
+                return new HttpResponseMessage() { StatusCode = HttpStatusCode.InternalServerError };
+            }
         }
 
         [HttpGet]

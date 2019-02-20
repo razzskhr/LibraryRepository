@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -161,5 +162,31 @@ namespace ServiceRepository
                 throw e;
             }
         }
+        public async Task<Response<string>> InsertImageFileName(string userName,string image)
+        {
+            try
+            {
+                var database = LibManagementConnection.GetConnection();
+                var userCollection = database.GetCollection<UserDetails>(CollectionConstant.User_Collection);
+                var builders = Builders<UserDetails>.Filter.And(Builders<UserDetails>.Filter.Where(x => x.UserName == userName));
+                var update = Builders<UserDetails>.Update.Set("image", image);
+
+                var result = await userCollection.FindOneAndUpdateAsync(builders, update);
+                if (result != null)
+                {
+                    return new Response<string>() {StatusCode = HttpStatusCode.OK };
+                }
+                else
+                {
+                    return new Response<string>() { StatusCode = HttpStatusCode.BadRequest };
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

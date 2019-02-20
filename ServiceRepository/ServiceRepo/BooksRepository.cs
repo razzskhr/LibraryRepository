@@ -152,7 +152,7 @@ namespace ServiceRepository
         ////    }
         ////}
         
-        public async Task<BookDetails> AddNewBook(BookDetails bookDetails)
+        public async Task<BookDetails> AddNewBook(BookDetails bookDetails, string image)
         {
             //IClientSessionHandle session = null;
             try
@@ -166,6 +166,7 @@ namespace ServiceRepository
                 bookDetails.ISBNNumber.FirstOrDefault().Created = System.DateTime.Now;
                 bookDetails.LastUpdated = System.DateTime.Now;
                 bookDetails.NumberOfCopies = 1;
+                bookDetails.Image = image;
                 await todoTaskCollection.InsertOneAsync(bookDetails);
                 //session.CommitTransaction();
                 return bookDetails;

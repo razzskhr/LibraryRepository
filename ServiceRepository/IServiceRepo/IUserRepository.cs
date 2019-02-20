@@ -17,6 +17,9 @@ namespace ServiceRepository
 
 
         Task<bool> UpdatePassword(LoginDetails userLoginDetails);
+
+        Task<Response<string>> InsertImageFileName(string UserName, string image);
+
         Task<IEnumerable<UserDetails>> GetUserMailList();
     }
 }
