@@ -107,6 +107,7 @@ namespace LibraryManagement.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet]
         [Route("api/GetMailList")]
         public async Task<IEnumerable<object>> GetMailList()

@@ -21,5 +21,7 @@ namespace ServiceRepository
         Task<Response<string>> InsertImageFileName(string UserName, string image);
 
         Task<List<string>> GetUserMailList();
+
+        Task<bool> RemoveAllBlockedBookList();
     }
 }

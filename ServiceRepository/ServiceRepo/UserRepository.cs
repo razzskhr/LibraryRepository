@@ -188,5 +188,16 @@ namespace ServiceRepository
             }
         }
 
+        public async Task<bool> RemoveBlockedBookList()
+        {
+            var userList = await GetAllUsers();
+
+            return true;
+        }
+
+        public Task<bool> RemoveAllBlockedBookList()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
