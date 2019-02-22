@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -39,19 +40,30 @@ namespace ServiceRepository
             }
         }
 
-        public async Task<IEnumerable<object>> GetUserMailList()
+        public async Task<List<string>> GetUserMailList()
         {
 
             try
             {
                 var result = await GetAllUsers();
-                var ss = (from user in result
-                          where user.IssuedBooks != null
-                          select new { user.Email, user.FullName,
-                          issuedBooks = (from book in user.IssuedBooks
-                                         where (book.ReturnDate.Date - DateTime.Now.Date).Days <= 1
-                                         select book)});
-                return ss;
+                var issuedList = result.Where(x => x.IssuedBooks != null && x.IssuedBooks.Any());
+                var list = (from user in issuedList
+
+                            from book in user.IssuedBooks
+                            where (book.ReturnDate.Date - DateTime.Now.Date).Days <= 1
+                            select user.Email).ToList();
+                //select new UserDetails
+                //{
+                //    Id =user.Id,
+                //    Email = user.Email,
+                //    FirstName = user.FirstName,
+                //    MiddleName = user.MiddleName,
+                //    LastName = user.LastName,
+                //    IssuedBooks = (from book in user.IssuedBooks
+                //                   where (book.ReturnDate.Date - DateTime.Now.Date).Days <= 1
+                //                   select book).ToList()
+                //});
+                return list;
 
             }
             catch (Exception ex)
@@ -88,7 +100,7 @@ namespace ServiceRepository
                 var loginCollection = database.GetCollection<LoginDetails>(CollectionConstant.Login_Collection);
                 var logins = await userCollection.FindAsync(x => x.UserName == userdetails.UserName || x.UserID == userdetails.UserID || x.Email == userdetails.Email);
                 var loginsList = await logins.ToListAsync();
-                string encryptedPassword=await passwordRepository.GetEncryptedPassword(userLoginDetails.Password);
+                string encryptedPassword = await passwordRepository.GetEncryptedPassword(userLoginDetails.Password);
                 userLoginDetails.Password = encryptedPassword;
                 if (loginsList?.Count == 0)
                 {
@@ -124,7 +136,7 @@ namespace ServiceRepository
                 //clientSession = await database.Client.StartSessionAsync();
                 var loginCollection = database.GetCollection<LoginDetails>(CollectionConstant.Login_Collection);
                 var logins = await loginCollection.FindAsync(x => x.UserName == userLoginDetails.UserName);
-                if(logins.ToListAsync().Result.Count > 0)
+                if (logins.ToListAsync().Result.Count > 0)
                 {
                     //clientSession.StartTransaction();
                     userLoginDetails.Password = newPassword;
@@ -146,10 +158,79 @@ namespace ServiceRepository
                     return false;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 //await clientSession.AbortTransactionAsync();
                 throw e;
+            }
+        }
+        public async Task<Response<string>> InsertImageFileName(string userName, string image)
+        {
+            try
+            {
+                var database = LibManagementConnection.GetConnection();
+                var userCollection = database.GetCollection<UserDetails>(CollectionConstant.User_Collection);
+                var builders = Builders<UserDetails>.Filter.And(Builders<UserDetails>.Filter.Where(x => x.UserName == userName));
+                var update = Builders<UserDetails>.Update.Set("image", image);
+
+                var result = await userCollection.FindOneAndUpdateAsync(builders, update);
+                if (result != null)
+                {
+                    return new Response<string>() { StatusCode = HttpStatusCode.OK };
+                }
+                else
+                {
+                    return new Response<string>() { StatusCode = HttpStatusCode.BadRequest };
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<bool> RemoveBlockedBookList()
+        {
+            var userList = await GetAllUsers();
+
+            return true;
+        }
+
+        public Task<bool> RemoveAllBlockedBookList()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> DeleteUser(string userName)
+        {
+            bool deleteResult = false;
+            //IClientSessionHandle session = null;
+            try
+            {
+                var database = LibManagementConnection.GetConnection();
+                // session = database.Client.StartSession();
+                //session.StartTransaction();
+                var todoTaskCollection = database.GetCollection<UserDetails>(CollectionConstant.User_Collection);
+                var result = await todoTaskCollection.FindOneAndDeleteAsync(Builders<UserDetails>.Filter.Eq("username", userName));
+
+                if (result != null)
+                {
+                    var loginCollection = database.GetCollection<LoginDetails>(CollectionConstant.Login_Collection);
+                    var deleteRes = await loginCollection.FindOneAndDeleteAsync(Builders<LoginDetails>.Filter.Eq("username", userName));
+
+                    if (deleteRes != null)
+                    {
+                       deleteResult = true;
+                    }
+                }
+                //session.CommitTransaction();
+                return deleteResult;
+            }
+            catch (Exception ex)
+            {
+                //session?.AbortTransaction();
+                throw ex;
             }
         }
 

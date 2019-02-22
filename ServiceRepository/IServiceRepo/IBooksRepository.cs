@@ -18,7 +18,7 @@ namespace ServiceRepository
 
         Task<bool> UpdateBookDetails(BookDetails bookDetails);
 
-        Task<BookDetails> AddNewBook(BookDetails bookDetails);
+        Task<BookDetails> AddNewBook(BookDetails bookDetails, string image);
 
         Task<bool> DeleteBookDetails(ISBNNumber isbnDetails);
         bool ReturnBooks(IssueBooks issueBooks);

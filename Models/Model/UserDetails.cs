@@ -65,14 +65,14 @@ namespace Models
         [Phone]
         [BsonElement("phoneNumber")]
         public string PhoneNumber { get; set; }
+        
+        [BsonElement("image")]
+        public string Image { get; set; }
 
         [Required]
         [BsonIgnore]
         public string Password { get; set; }
-
-        [BsonElement("image")]
-        public string Image { get; set; }
-
+        
         [BsonIgnore]
         public string FullName { get { return string.Concat(FirstName, " ", MiddleName, " ", LastName); } set { } }
     }

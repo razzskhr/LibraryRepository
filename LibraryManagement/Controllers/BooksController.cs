@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using System.Text;
 using LibraryManagement.Helpers;
 using Loggers;
+using System.Web;
 using Models.Model;
 
 namespace LibraryManagement.Controllers
@@ -72,20 +73,33 @@ namespace LibraryManagement.Controllers
         [HttpPost]
         [Route("api/Books/AddNewCategoryBook")]
         // POST: api/Books
-        public async Task<IHttpActionResult> AddNewCategoryBook([FromBody]BookDetails bookDetails)
+        public async Task<IHttpActionResult> AddNewCategoryBook()
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    var result = await booksRepository.AddNewBook(bookDetails);
-                    if (result != null)
+                    UploadImage image = new UploadImage();
+                    var httprequest = HttpContext.Current.Request;
+                    var model = httprequest.Form["model"];
+                    var bookDetails = JsonConvert.DeserializeObject<BookDetails>(model);
+                    var res = await image.UploadImageToAzure(Request.Content);
+                    ////var result = await booksRepository.AddNewBook(bookDetails, res.Message);
+                    if (res.StatusCode != HttpStatusCode.OK)
                     {
-                        return Ok(result);
+                        return BadRequest(res.Message);
                     }
                     else
                     {
-                        return NotFound();
+                        var result = await booksRepository.AddNewBook(bookDetails, res.Message);
+                        if (result != null)
+                        {
+                            return Ok(result);
+                        }
+                        else
+                        {
+                            return NotFound();
+                        }
                     }
                 }
                 else
