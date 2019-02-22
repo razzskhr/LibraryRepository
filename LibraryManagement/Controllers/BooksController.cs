@@ -176,60 +176,118 @@ namespace LibraryManagement.Controllers
         [Route("api/Books/ReturnBooks")]
         public async Task<IHttpActionResult> ReturnBooks([FromBody]IssueBooks issueBooks)
         {
-            var isBookDeleted = await userRepository.UserReturnBooks(issueBooks);
-           var isAvailableCopiesIncreased =  booksRepository.ReturnBooks(issueBooks);
-            if (isBookDeleted && isAvailableCopiesIncreased)
+            try
             {
-                return Ok();
+                var isBookDeleted = await userRepository.UserReturnBooks(issueBooks);
+                var isAvailableCopiesIncreased = booksRepository.ReturnBooks(issueBooks);
+                if (isBookDeleted && isAvailableCopiesIncreased)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
             }
-            else
+            catch(Exception e)
             {
-                return BadRequest(); 
+                loggers.LogError(e);
+                return InternalServerError();
             }
+            
         }
 
         [HttpPost]
         [Route("api/Books/IssueBooks")]
         public async Task<IHttpActionResult> IssueBooks([FromBody]IssueBooks issueBooks)
         {
-           var isBookAddedToUser=await userRepository.IssueBooksToUser(issueBooks);
-           //var isAvailableCopiesDecreased= await booksRepository.IssueBooks(issueBooks);
-            if (isBookAddedToUser /*&& isAvailableCopiesDecreased*/)
+            try
             {
-                return Ok();
+                var isBookAddedToUser = await userRepository.IssueBooksToUser(issueBooks);
+                var isAvailableCopiesDecreased = await booksRepository.IssueBooks(issueBooks);
+                if (isBookAddedToUser && isAvailableCopiesDecreased)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
             }
-            else
+            catch(Exception e)
             {
-                return BadRequest();
+                loggers.LogError(e);
+                return InternalServerError();
             }
+           
         }
         [HttpPost]
         [Route("api/Books/BlockBooks")]
         public async Task<IHttpActionResult> BlockBooks([FromBody] BlockBooks blockedBooks)
         {
-            var isBookBlocked=await booksRepository.BlockBooks(blockedBooks);
-            return Ok();
+            try
+            {
+                var isBookBlocked = await booksRepository.BlockBooks(blockedBooks);
+                if(isBookBlocked)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+                
+            }
+            catch(Exception e)
+            {
+                loggers.LogError(e);
+                return InternalServerError();
+            }
         }
         [HttpPost]
         [Route("api/Books/UnBlockBooks")]
         public async Task<IHttpActionResult> UnBlockBooks([FromBody] BlockBooks blockedBooks)
         {
-            var isBookBlocked=await booksRepository.UnBlockBooks(blockedBooks);
-            return Ok();
+            try
+            {
+                var isBookUnBlocked = await booksRepository.UnBlockBooks(blockedBooks);
+                if (isBookUnBlocked)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+             catch (Exception e)
+            {
+                loggers.LogError(e);
+                return InternalServerError();
+            }
+            
         }
-
-        [HttpPost]
-        [Route("api/Books/GetAllBooksByUserId")]
-        public List<IssueBooks> GetAllBooksByUserId([FromBody]UserDetails userDetails)
-        {
-            var IssuesBookDetails=userRepository.GetAllIssuedbooksToUser(userDetails.UserID);
-            return IssuesBookDetails;
-        }
-
         public async Task<IEnumerable<object>> GetLatestBookDetails()
         {
-            var res=await booksRepository.GetAllLatestBookDetails();
-            return res;
+            try
+            {
+                var res = await booksRepository.GetAllLatestBookDetails();
+                if (res != null)
+                {
+                    return res;
+                }
+                else
+                {
+                    return new List<object>();
+                }
+              
+            }
+             catch (Exception e)
+            {
+                loggers.LogError(e);
+                return new List<object>();
+            }
+
         }
     }
 }

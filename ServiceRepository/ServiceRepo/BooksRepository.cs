@@ -352,7 +352,7 @@ namespace ServiceRepository
                                        Edition = item.Edition,
                                        Occupied = item.Occupied,
                                        TrackNo = item.TrackNo,
-                                       PublishingYear = books.PublishingYear
+                                       PublishingYear = books.PublishingYear,Description=item.Description
                                    });
                 return latestBooks;
             }

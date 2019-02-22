@@ -77,6 +77,9 @@ namespace Models
         [BsonElement("requestForBlock")]
         public string RequestForBlock { get; set; }
 
+        [BsonElement("description")]
+        public string Description { get; set; }
+
         [BsonElement("created")]
         public DateTime Created { get; set; }
     }

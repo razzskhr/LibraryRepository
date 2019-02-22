@@ -157,5 +157,22 @@ namespace LibraryManagement.Controllers
             }
 
         }
+
+
+        [HttpPost]
+        [Route("api/User/GetAllBooksByUserId")]
+        public List<IssueBooks> GetAllBooksByUserId([FromBody]UserDetails userDetails)
+        {
+            try
+            {
+                var IssuesBookDetails = userRepository.GetAllIssuedbooksToUser(userDetails.UserID);
+                return IssuesBookDetails;
+            }
+            catch (Exception e)
+            {
+                loggers.LogError(e);
+                return new List<IssueBooks>();
+            }
+        }
     }
 }
