@@ -70,7 +70,7 @@ namespace ServiceRepository
                 if (!IsISBNExists && isbnDetails.BookID != null)
                 {                    
                     isbnDetails.Created = System.DateTime.Now;                    
-                    var update = Builders<BookDetails>.Update.Push("isbnNumber", isbnDetails).Inc("numberOfCopies", 1);
+                    var update = Builders<BookDetails>.Update.Push("isbnNumber", isbnDetails).Inc("numberOfCopies", 1).Inc("availableCopies", 1);
                     var result = await todoTaskCollection.FindOneAndUpdateAsync(builders, update);
                     //session.CommitTransaction();
                     if (result != null)
@@ -245,14 +245,16 @@ namespace ServiceRepository
                 var database = LibManagementConnection.GetConnection();
                 var bookDetailsCollection = database.GetCollection<BookDetails>(CollectionConstant.bookDetails_copy);
                 ObjectId objectId = ObjectId.Parse(issueBooks.BookID);
-                var data= bookDetailsCollection.Find(x => x.Id == objectId).First();
-                var blockedbookDetails = data.BlockBooks.Where(x => x.ISBNNumber == issueBooks.ISBNNumber).ToList();
+                var data=await bookDetailsCollection.FindAsync(x => x.Id == objectId);
+                var bookdata = await data.ToListAsync();
+                var bookDetails=bookdata.FirstOrDefault();
+                var blockedbookDetails = bookDetails.BlockBooks.Where(x => x.ISBNNumber == issueBooks.ISBNNumber).ToList();
                 if(blockedbookDetails.Count > 0)
                 {
-                    data.BlockedCopies = data.BlockedCopies - 1;
-                    data.ISBNNumber.First(i => i.TrackNo == issueBooks.ISBNNumber).Occupied=true;
-                    data.BlockBooks = new List<BlockBooks>();
-                    var result = bookDetailsCollection.ReplaceOne(c => c.Id == data.Id, data);
+                    bookDetails.BlockedCopies = bookDetails.BlockedCopies - 1;
+                    bookDetails.ISBNNumber.First(i => i.TrackNo == issueBooks.ISBNNumber).Occupied=true;
+                    bookDetails.BlockBooks = new List<BlockBooks>();
+                    var result = bookDetailsCollection.ReplaceOne(c => c.Id == bookDetails.Id, bookDetails);
                     //var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Eq(x => x.Id, objectId));
                     //var update = Builders<BookDetails>.Update.PullFilter("blockedBooks", Builders<BsonDocument>.Filter.Eq("isbnNumber", issueBooks.ISBNNumber)).Inc("blockedCopies", -1).;
                     //var response  = await bookDetailsCollection.FindOneAndUpdateAsync(builders, update);
@@ -260,10 +262,10 @@ namespace ServiceRepository
                 }
                 else
                 {
-                    var details = data.ISBNNumber.First(i => i.TrackNo == issueBooks.ISBNNumber);
-                    data.AvailableCopies = data.AvailableCopies - 1;
+                    var details = bookDetails.ISBNNumber.First(i => i.TrackNo == issueBooks.ISBNNumber);
+                    bookDetails.AvailableCopies = bookDetails.AvailableCopies - 1;
                     details.Occupied = true;
-                    var result = bookDetailsCollection.ReplaceOne(c => c.Id == data.Id, data);
+                    var result = bookDetailsCollection.ReplaceOne(c => c.Id == bookDetails.Id, bookDetails);
                     return true;
                 }
             }
