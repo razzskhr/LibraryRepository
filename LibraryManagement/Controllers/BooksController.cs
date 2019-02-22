@@ -15,6 +15,7 @@ using System.Text;
 using LibraryManagement.Helpers;
 using Loggers;
 using System.Web;
+using Models.Model;
 
 namespace LibraryManagement.Controllers
 {
@@ -23,10 +24,12 @@ namespace LibraryManagement.Controllers
     {
         private IBooksRepository booksRepository;
         private ILoggers loggers;
-        public BooksController(IBooksRepository booksRepository, ILoggers loggers)
+        private IUserRepository userRepository;
+        public BooksController(IBooksRepository booksRepository, ILoggers loggers,IUserRepository userRepository)
         {
             this.booksRepository = booksRepository;
             this.loggers = loggers;
+            this.userRepository = userRepository;
         }
 
         [Authorize]
@@ -166,6 +169,123 @@ namespace LibraryManagement.Controllers
             {
                 loggers.LogError(ex);
                 return new HttpResponseMessage() { StatusCode = HttpStatusCode.InternalServerError, Content = new StringContent(JsonConvert.SerializeObject(ex.Message)) };
+            }
+
+        }
+        [HttpPost]
+        [Route("api/Books/ReturnBooks")]
+        public async Task<IHttpActionResult> ReturnBooks([FromBody]IssueBooks issueBooks)
+        {
+            try
+            {
+                var isBookDeleted = await userRepository.UserReturnBooks(issueBooks);
+                var isAvailableCopiesIncreased = booksRepository.ReturnBooks(issueBooks);
+                if (isBookDeleted && isAvailableCopiesIncreased)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch(Exception e)
+            {
+                loggers.LogError(e);
+                return InternalServerError();
+            }
+            
+        }
+
+        [HttpPost]
+        [Route("api/Books/IssueBooks")]
+        public async Task<IHttpActionResult> IssueBooks([FromBody]IssueBooks issueBooks)
+        {
+            try
+            {
+                var isBookAddedToUser = await userRepository.IssueBooksToUser(issueBooks);
+                var isAvailableCopiesDecreased = await booksRepository.IssueBooks(issueBooks);
+                if (isBookAddedToUser && isAvailableCopiesDecreased)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch(Exception e)
+            {
+                loggers.LogError(e);
+                return InternalServerError();
+            }
+           
+        }
+        [HttpPost]
+        [Route("api/Books/BlockBooks")]
+        public async Task<IHttpActionResult> BlockBooks([FromBody] BlockBooks blockedBooks)
+        {
+            try
+            {
+                var isBookBlocked = await booksRepository.BlockBooks(blockedBooks);
+                if(isBookBlocked)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+                
+            }
+            catch(Exception e)
+            {
+                loggers.LogError(e);
+                return InternalServerError();
+            }
+        }
+        [HttpPost]
+        [Route("api/Books/UnBlockBooks")]
+        public async Task<IHttpActionResult> UnBlockBooks([FromBody] BlockBooks blockedBooks)
+        {
+            try
+            {
+                var isBookUnBlocked = await booksRepository.UnBlockBooks(blockedBooks);
+                if (isBookUnBlocked)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+             catch (Exception e)
+            {
+                loggers.LogError(e);
+                return InternalServerError();
+            }
+            
+        }
+        public async Task<IEnumerable<object>> GetLatestBookDetails()
+        {
+            try
+            {
+                var res = await booksRepository.GetAllLatestBookDetails();
+                if (res != null)
+                {
+                    return res;
+                }
+                else
+                {
+                    return new List<object>();
+                }
+              
+            }
+             catch (Exception e)
+            {
+                loggers.LogError(e);
+                return new List<object>();
             }
 
         }

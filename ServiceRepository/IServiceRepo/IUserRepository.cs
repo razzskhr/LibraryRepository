@@ -25,6 +25,10 @@ namespace ServiceRepository
         Task<bool> RemoveAllBlockedBookList();
 
         Task<bool> DeleteUser(string id);
+        Task<bool> UserReturnBooks(IssueBooks isbnDetails);
+        Task<bool> IssueBooksToUser(IssueBooks isbnDetails);
+
+        List<IssueBooks> GetAllIssuedbooksToUser(string userId);
 
         Task<bool> UpdateUserDetails();
     }

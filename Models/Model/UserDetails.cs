@@ -78,6 +78,9 @@ namespace Models
     }
     public class IssueBooks
     {
+        [BsonIgnore]
+        public string BookID { get; set; }
+
         [BsonElement("isbnNumber")]
         public string ISBNNumber { get; set; }
 
