@@ -30,7 +30,7 @@ namespace ServiceRepository
 
                 var accountName = ConfigurationManager.AppSettings["storage:account:name"];
                 var accountKey = ConfigurationManager.AppSettings["storage:account:key"];
-
+                var storagePath = ConfigurationManager.AppSettings["storagePath"];
                 var storageAccount = new CloudStorageAccount(new StorageCredentials(accountName, accountKey), true);
                 CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 
@@ -49,11 +49,12 @@ namespace ServiceRepository
 
                 // Retrieve the filename of the file you have uploaded
                 var filename = provider.FileData.FirstOrDefault()?.LocalFileName;
+                var filePath = string.Concat(storagePath, filename);
                 if (string.IsNullOrEmpty(filename))
                 {
                     return new Response<string>() { StatusCode = System.Net.HttpStatusCode.BadRequest, Message = "An error has occured while uploading your file. Please try again." };
                 }
-                return new Response<string>() { StatusCode = HttpStatusCode.OK, Message = $"{filename}" };
+                return new Response<string>() { StatusCode = HttpStatusCode.OK, Message = $"{filePath}" };
             }
             catch (Exception ex)
             {

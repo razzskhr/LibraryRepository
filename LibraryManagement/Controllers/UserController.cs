@@ -136,14 +136,12 @@ namespace LibraryManagement.Controllers
         }
 
         [Authorize(Roles ="Admin")]
-        [HttpPost]
-        [Route("api/User/DeleteUser")]
         // DELETE: api/User/5
-        public async Task<HttpResponseMessage> Delete([FromBody]string username)
+        public async Task<HttpResponseMessage> Delete([FromBody]LoginDetails user)
         {
             try
             {
-                var result = await userRepository.DeleteUser(username);
+                var result = await userRepository.DeleteUser(user.UserName);
                 if (result)
                 {
                     return new HttpResponseMessage() { StatusCode = HttpStatusCode.OK };
