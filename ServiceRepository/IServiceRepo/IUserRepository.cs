@@ -18,5 +18,9 @@ namespace ServiceRepository
 
         Task<bool> UpdatePassword(LoginDetails userLoginDetails);
         Task<IEnumerable<object>> GetUserMailList();
+        Task<bool> UserReturnBooks(IssueBooks isbnDetails);
+        Task<bool> IssueBooksToUser(IssueBooks isbnDetails);
+
+        List<IssueBooks> GetAllIssuedbooksToUser(string userId);
     }
 }

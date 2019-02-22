@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using System.Text;
 using LibraryManagement.Helpers;
 using Loggers;
+using Models.Model;
 
 namespace LibraryManagement.Controllers
 {
@@ -22,10 +23,12 @@ namespace LibraryManagement.Controllers
     {
         private IBooksRepository booksRepository;
         private ILoggers loggers;
-        public BooksController(IBooksRepository booksRepository, ILoggers loggers)
+        private IUserRepository userRepository;
+        public BooksController(IBooksRepository booksRepository, ILoggers loggers,IUserRepository userRepository)
         {
             this.booksRepository = booksRepository;
             this.loggers = loggers;
+            this.userRepository = userRepository;
         }
 
         [Authorize]
@@ -154,6 +157,65 @@ namespace LibraryManagement.Controllers
                 return new HttpResponseMessage() { StatusCode = HttpStatusCode.InternalServerError, Content = new StringContent(JsonConvert.SerializeObject(ex.Message)) };
             }
 
+        }
+        [HttpPost]
+        [Route("api/Books/ReturnBooks")]
+        public async Task<IHttpActionResult> ReturnBooks([FromBody]IssueBooks issueBooks)
+        {
+            var isBookDeleted = await userRepository.UserReturnBooks(issueBooks);
+           var isAvailableCopiesIncreased =  booksRepository.ReturnBooks(issueBooks);
+            if (isBookDeleted && isAvailableCopiesIncreased)
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest(); 
+            }
+        }
+
+        [HttpPost]
+        [Route("api/Books/IssueBooks")]
+        public async Task<IHttpActionResult> IssueBooks([FromBody]IssueBooks issueBooks)
+        {
+           var isBookAddedToUser=await userRepository.IssueBooksToUser(issueBooks);
+           //var isAvailableCopiesDecreased= await booksRepository.IssueBooks(issueBooks);
+            if (isBookAddedToUser /*&& isAvailableCopiesDecreased*/)
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+        [HttpPost]
+        [Route("api/Books/BlockBooks")]
+        public async Task<IHttpActionResult> BlockBooks([FromBody] BlockBooks blockedBooks)
+        {
+            var isBookBlocked=await booksRepository.BlockBooks(blockedBooks);
+            return Ok();
+        }
+        [HttpPost]
+        [Route("api/Books/UnBlockBooks")]
+        public async Task<IHttpActionResult> UnBlockBooks([FromBody] BlockBooks blockedBooks)
+        {
+            var isBookBlocked=await booksRepository.UnBlockBooks(blockedBooks);
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("api/Books/GetAllBooksByUserId")]
+        public List<IssueBooks> GetAllBooksByUserId([FromBody]UserDetails userDetails)
+        {
+            var IssuesBookDetails=userRepository.GetAllIssuedbooksToUser(userDetails.UserID);
+            return IssuesBookDetails;
+        }
+
+        public async Task<IEnumerable<object>> GetLatestBookDetails()
+        {
+            var res=await booksRepository.GetAllLatestBookDetails();
+            return res;
         }
     }
 }

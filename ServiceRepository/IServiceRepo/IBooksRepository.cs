@@ -1,4 +1,5 @@
 ﻿using Models;
+using Models.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,11 @@ namespace ServiceRepository
         Task<BookDetails> AddNewBook(BookDetails bookDetails);
 
         Task<bool> DeleteBookDetails(ISBNNumber isbnDetails);
+        bool ReturnBooks(IssueBooks issueBooks);
+        Task<bool> IssueBooks(IssueBooks issueBooks);
+        Task<bool> BlockBooks(BlockBooks blockedbookdetails);
+        Task<bool> UnBlockBooks(BlockBooks blockedbookdetails);
 
+        Task<IEnumerable<object>> GetAllLatestBookDetails();
     }
 }

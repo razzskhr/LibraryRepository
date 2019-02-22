@@ -13,7 +13,8 @@ namespace Models
         public const string Config_Collection = "configDetails";
         public const string Login_Collection = "loginDetails";
         public const string Roles_Collection = "RolesDetails";
-
+        public const string userDetails_copy = "userDetails_copy";
+        public const string bookDetails_copy = "bookDetails_copy";
     }
 
     public enum RoleType

@@ -14,10 +14,12 @@ namespace ServiceRepository
     public class UserRepository : IUserRepository
     {
         private IPasswordRepository passwordRepository;
+        private IConfigRepository configRepository;
 
-        public UserRepository(IPasswordRepository passwordRepository)
+        public UserRepository(IPasswordRepository passwordRepository, IConfigRepository configRepository)
         {
             this.passwordRepository = passwordRepository;
+            this.configRepository = configRepository;
         }
         public async Task<List<UserDetails>> GetAllUsers()
         {
@@ -147,6 +149,114 @@ namespace ServiceRepository
             catch(Exception e)
             {
                 //await clientSession.AbortTransactionAsync();
+                throw e;
+            }
+        }
+
+        public async Task<bool> UserReturnBooks(IssueBooks isbnDetails)
+        {
+            try
+            {
+                var database = LibManagementConnection.GetConnection();
+                var userCollection = database.GetCollection<UserDetails>(CollectionConstant.userDetails_copy);
+                ObjectId objectId = ObjectId.Parse(isbnDetails.BookID);
+                var builders = Builders<UserDetails>.Filter.And(Builders<UserDetails>.Filter.Eq(x => x.Id, objectId));
+                var update = Builders<UserDetails>.Update.PullFilter("issuedBooks", Builders<BsonDocument>.Filter.Eq("isbnNumber", isbnDetails.ISBNNumber));
+                var result = await userCollection.FindOneAndUpdateAsync(builders, update);
+                if(result != null)
+                {
+                    return true;
+
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public async Task<bool> IssueBooksToUser(IssueBooks isbnDetails)
+        {
+            try
+            {
+                var database = LibManagementConnection.GetConnection();
+                var userCollection = database.GetCollection<UserDetails>(CollectionConstant.userDetails_copy);
+                ObjectId objectId = ObjectId.Parse(isbnDetails.BookID);
+                var builders = Builders<UserDetails>.Filter.And(Builders<UserDetails>.Filter.Eq(x => x.Id, objectId));
+                var bookDetails = await userCollection.Find(builders).ToListAsync();
+                var configDetails = await configRepository.GetConfigDetails();
+                var data = userCollection.Find(x => x.Id == objectId).First();
+                int issuedBooksCount = data.IssuedBooks.Count();
+                if (issuedBooksCount <= configDetails.BookIssueLimit)
+                {
+                    var IsISBNExists = bookDetails?.Any(x => x.IssuedBooks?.Any(y => y.ISBNNumber == isbnDetails.ISBNNumber) ?? false);
+                    if (!IsISBNExists ?? false && isbnDetails.BookID != null)
+                    {
+                        isbnDetails.IssuedOn = DateTime.Now;
+                        isbnDetails.ReturnDate = isbnDetails.IssuedOn.AddDays(15);
+                        var update = Builders<UserDetails>.Update.Push("issuedBooks", isbnDetails);
+                        var result = await userCollection.FindOneAndUpdateAsync(builders, update);
+                    }
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+              
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+        }
+
+       
+
+        public async Task<bool> UnBlockBooks(BlockBooks blockedbookdetails)
+        {
+            try
+            {
+                var database = LibManagementConnection.GetConnection();
+                var userCollection = database.GetCollection<UserDetails>(CollectionConstant.userDetails_copy);
+                ObjectId objectId = ObjectId.Parse(blockedbookdetails.BookID);
+                var builders = Builders<UserDetails>.Filter.And(Builders<UserDetails>.Filter.Eq(x => x.Id, objectId));
+                var update = Builders<UserDetails>.Update.PullFilter("blockedBooks", Builders<BsonDocument>.Filter.Eq("isbnNumber", blockedbookdetails.ISBNNumber));
+                var result = await userCollection.FindOneAndUpdateAsync(builders, update);
+                if (result != null)
+                {
+                    return true;
+
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+
+        }
+
+        public List<IssueBooks> GetAllIssuedbooksToUser(string userId)
+        {
+            try
+            {
+                var database = LibManagementConnection.GetConnection();
+                var userCollection = database.GetCollection<UserDetails>(CollectionConstant.userDetails_copy);
+                var user = userCollection.Find(x => x.UserID == userId).First();
+                var issuedbooks = user.IssuedBooks.OrderBy(x=>x.ReturnDate).ToList();
+                return issuedbooks;
+
+            }
+            catch(Exception e)
+            {
                 throw e;
             }
         }

@@ -18,6 +18,10 @@ namespace Models
         [BsonElement("isbnNumber")]
         public List<ISBNNumber> ISBNNumber { get; set; }
 
+        [BsonIgnoreIfNull]
+        [BsonElement("blockedBooks")]
+        public List<BlockBooks> BlockBooks { get; set; }
+
         [Required]
         [BsonElement("name")]
         public string Name { get; set; }
@@ -85,5 +89,31 @@ namespace Models
 
         [BsonElement("userID")]
         public string UserID { get; set; }
+    }
+
+    public class BlockBooks
+    {
+        [BsonIgnore]
+        public string BookID { get; set; }
+
+        [BsonIgnore]
+        public string UserId { get; set; }
+
+        [BsonElement("name")]
+        public string Name { get; set; }
+
+        [Required]
+        [BsonElement("author")]
+        public string Author { get; set; }
+
+        [BsonElement("isbnNumber")]
+        public string ISBNNumber { get; set; }
+
+        [BsonElement("edition")]
+        public string Edition { get; set; }
+
+        [BsonElement("created")]
+        public DateTime Created { get; set; }
+
     }
 }
