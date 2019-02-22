@@ -136,8 +136,6 @@ namespace LibraryManagement.Controllers
         }
 
         [Authorize(Roles ="Admin")]
-        [HttpPost]
-        [Route("api/User/DeleteUser")]
         // DELETE: api/User/5
         public async Task<HttpResponseMessage> Delete([FromBody]string username)
         {
