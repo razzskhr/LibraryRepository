@@ -24,7 +24,7 @@ namespace ServiceRepository
                 List<BookDetails> bookList = new List<BookDetails>();
                 var database = LibManagementConnection.GetConnection();
                 
-                var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.bookDetails_copy);
+                var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
                 var docs = await todoTaskCollection.FindAsync(new BsonDocument());
                 await docs.ForEachAsync(doc => bookList.Add(doc));
 
@@ -216,7 +216,7 @@ namespace ServiceRepository
             {
                 var database = LibManagementConnection.GetConnection();
 
-                var booksDetailsCollection = database.GetCollection<BookDetails>(CollectionConstant.bookDetails_copy);
+                var booksDetailsCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
                 ObjectId objectId = ObjectId.Parse(issueBooks.BookID);
                 var data = booksDetailsCollection.Find(x => x.Id == objectId).First();
                 data.AvailableCopies = data.AvailableCopies + 1;
@@ -243,7 +243,7 @@ namespace ServiceRepository
             try
             {
                 var database = LibManagementConnection.GetConnection();
-                var bookDetailsCollection = database.GetCollection<BookDetails>(CollectionConstant.bookDetails_copy);
+                var bookDetailsCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
                 ObjectId objectId = ObjectId.Parse(issueBooks.BookID);
                 var data=await bookDetailsCollection.FindAsync(x => x.Id == objectId);
                 var bookdata = await data.ToListAsync();
@@ -280,7 +280,7 @@ namespace ServiceRepository
             try
             {
                 var database = LibManagementConnection.GetConnection();
-                var bookDetailsCollection = database.GetCollection<BookDetails>(CollectionConstant.bookDetails_copy);
+                var bookDetailsCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
                 ObjectId objectId = ObjectId.Parse(blockedbookdetails.BookID);
                 var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Eq(x => x.Id, objectId));
                 var bookDetails = await bookDetailsCollection.Find(builders).ToListAsync();
@@ -317,7 +317,7 @@ namespace ServiceRepository
             try
             {
                 var database = LibManagementConnection.GetConnection();
-                var userCollection = database.GetCollection<BookDetails>(CollectionConstant.bookDetails_copy);
+                var userCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
                 ObjectId objectId = ObjectId.Parse(blockedbookdetails.BookID);
                 var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Eq(x => x.Id, objectId));
                 var update = Builders<BookDetails>.Update.PullFilter("blockedBooks", Builders<BsonDocument>.Filter.Eq("isbnNumber", blockedbookdetails.ISBNNumber)).Inc("availableCopies", 1).Inc("blockedCopies", -1);

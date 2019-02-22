@@ -221,7 +221,7 @@ namespace ServiceRepository
 
                     if (deleteRes != null)
                     {
-                       deleteResult = true;
+                        deleteResult = true;
                     }
                 }
                 //session.CommitTransaction();
@@ -239,12 +239,12 @@ namespace ServiceRepository
             try
             {
                 var database = LibManagementConnection.GetConnection();
-                var userCollection = database.GetCollection<UserDetails>(CollectionConstant.userDetails_copy);
+                var userCollection = database.GetCollection<UserDetails>(CollectionConstant.User_Collection);
                 ObjectId objectId = ObjectId.Parse(isbnDetails.BookID);
                 var builders = Builders<UserDetails>.Filter.And(Builders<UserDetails>.Filter.Eq(x => x.Id, objectId));
                 var update = Builders<UserDetails>.Update.PullFilter("issuedBooks", Builders<BsonDocument>.Filter.Eq("isbnNumber", isbnDetails.ISBNNumber));
                 var result = await userCollection.FindOneAndUpdateAsync(builders, update);
-                if(result != null)
+                if (result != null)
                 {
                     return true;
 
@@ -254,7 +254,7 @@ namespace ServiceRepository
                     return false;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw e;
             }
@@ -265,7 +265,7 @@ namespace ServiceRepository
             try
             {
                 var database = LibManagementConnection.GetConnection();
-                var userCollection = database.GetCollection<UserDetails>(CollectionConstant.userDetails_copy);
+                var userCollection = database.GetCollection<UserDetails>(CollectionConstant.User_Collection);
                 ObjectId objectId = ObjectId.Parse(isbnDetails.BookID);
                 var builders = Builders<UserDetails>.Filter.And(Builders<UserDetails>.Filter.Eq(x => x.Id, objectId));
                 var bookDetails = await userCollection.Find(builders).ToListAsync();
@@ -288,22 +288,22 @@ namespace ServiceRepository
                 {
                     return false;
                 }
-              
+
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw e;
             }
         }
 
-       
+
 
         public async Task<bool> UnBlockBooks(BlockBooks blockedbookdetails)
         {
             try
             {
                 var database = LibManagementConnection.GetConnection();
-                var userCollection = database.GetCollection<UserDetails>(CollectionConstant.userDetails_copy);
+                var userCollection = database.GetCollection<UserDetails>(CollectionConstant.User_Collection);
                 ObjectId objectId = ObjectId.Parse(blockedbookdetails.BookID);
                 var builders = Builders<UserDetails>.Filter.And(Builders<UserDetails>.Filter.Eq(x => x.Id, objectId));
                 var update = Builders<UserDetails>.Update.PullFilter("blockedBooks", Builders<BsonDocument>.Filter.Eq("isbnNumber", blockedbookdetails.ISBNNumber));
@@ -318,7 +318,7 @@ namespace ServiceRepository
                     return false;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw e;
             }
@@ -330,22 +330,54 @@ namespace ServiceRepository
             try
             {
                 var database = LibManagementConnection.GetConnection();
-                var userCollection = database.GetCollection<UserDetails>(CollectionConstant.userDetails_copy);
+                var userCollection = database.GetCollection<UserDetails>(CollectionConstant.User_Collection);
                 var user = userCollection.Find(x => x.UserID == userId).First();
-                var issuedbooks = user.IssuedBooks.OrderBy(x=>x.ReturnDate).ToList();
+                var issuedbooks = user.IssuedBooks.OrderBy(x => x.ReturnDate).ToList();
                 return issuedbooks;
 
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw e;
             }
         }
 
-        public Task<bool> UpdateUserDetails()
+        public async Task<bool> UpdateUserDetails(UserDetails userDetails)
         {
+            try
+            {
+                if (userDetails != null)
+                {
+                    var database = LibManagementConnection.GetConnection();
+                    //session = database.Client.StartSession();
+                    //session.StartTransaction();
+                    var todoTaskCollection = database.GetCollection<UserDetails>(CollectionConstant.User_Collection);
+                    var builders = Builders<UserDetails>.Filter.And(Builders<UserDetails>.Filter.Where(x => x.UserName == userDetails.UserName));
+                    var update = Builders<UserDetails>.Update.Set("firstName", userDetails.FirstName).Set("middleName", userDetails.MiddleName)
+                                                             .Set("lastName", userDetails.LastName).Set("image", userDetails.Image).Set("lastUpdated", System.DateTime.UtcNow)
+                                                             .Set("dob", userDetails.DateofBirth).Set("phoneNumber", userDetails.PhoneNumber);
 
-            return Task.FromResult(true);
+                    var result = await todoTaskCollection.FindOneAndUpdateAsync(builders, update);
+                    //session.CommitTransaction();
+                    if (result != null)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                //session?.AbortTransaction();
+                throw ex;
+            }
         }
     }
 }

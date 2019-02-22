@@ -13,9 +13,15 @@ using System.Web;
 
 namespace ServiceRepository
 {
-    public class UploadImage
+    public class ImageRepository : IImageRepository
     {
         private const string Container = "blobs";
+
+        public Task<Response<bool>> RemoveImageFromAzure(string url)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<Response<string>> UploadImageToAzure(HttpContent request)
         {
             try
