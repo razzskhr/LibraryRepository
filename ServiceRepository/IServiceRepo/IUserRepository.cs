@@ -23,5 +23,7 @@ namespace ServiceRepository
         Task<List<string>> GetUserMailList();
 
         Task<bool> RemoveAllBlockedBookList();
+
+        Task<bool> DeleteUser(string id);
     }
 }

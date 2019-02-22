@@ -1,5 +1,6 @@
 ﻿using Loggers;
 using Models;
+using Newtonsoft.Json;
 using ServiceRepository;
 using System;
 using System.Collections.Generic;
@@ -134,9 +135,27 @@ namespace LibraryManagement.Controllers
         {
         }
 
+        [Authorize(Roles ="Admin")]
+        [HttpPost]
+        [Route("api/User/DeleteUser")]
         // DELETE: api/User/5
-        public void Delete(int id)
+        public async Task<HttpResponseMessage> Delete([FromBody]string username)
         {
+            try
+            {
+                var result = await userRepository.DeleteUser(username);
+                if (result)
+                {
+                    return new HttpResponseMessage() { StatusCode = HttpStatusCode.OK };
+                }
+                return new HttpResponseMessage() { StatusCode = HttpStatusCode.BadRequest };
+            }
+            catch (Exception ex)
+            {
+                loggers.LogError(ex);
+                return new HttpResponseMessage() { StatusCode = HttpStatusCode.InternalServerError, Content = new StringContent(JsonConvert.SerializeObject(ex.Message)) };
+            }
+
         }
     }
 }
