@@ -155,5 +155,10 @@ namespace LibraryManagement.Controllers
             }
 
         }
+
+        public async Task<HttpResponseMessage> UpdateUser()
+        {
+
+        }
     }
 }

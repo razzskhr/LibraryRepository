@@ -231,5 +231,11 @@ namespace ServiceRepository
                 throw ex;
             }
         }
+
+        public Task<bool> UpdateUserDetails()
+        {
+
+            return Task.FromResult(true);
+        }
     }
 }

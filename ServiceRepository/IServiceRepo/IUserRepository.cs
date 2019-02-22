@@ -25,5 +25,7 @@ namespace ServiceRepository
         Task<bool> RemoveAllBlockedBookList();
 
         Task<bool> DeleteUser(string id);
+
+        Task<bool> UpdateUserDetails();
     }
 }
