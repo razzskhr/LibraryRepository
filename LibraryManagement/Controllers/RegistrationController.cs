@@ -103,5 +103,21 @@ namespace LibraryManagement.Controllers
             }
             return BadRequest();
         }
+        [HttpGet]
+        [Route("api/Registration/CheckUser")]
+        public async Task<bool> FetchUserName(string userName)
+        {
+            try
+            {
+                bool message = await userRepository.CheckUserNameAvailability(userName);
+                return message;
+            }
+            catch(Exception e)
+            {
+                loggers.LogError(e);
+                return false;
+            }
+          
+        }
     }
 }

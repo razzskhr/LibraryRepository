@@ -341,5 +341,29 @@ namespace ServiceRepository
                 throw e;
             }
         }
+        public async Task<bool> CheckUserNameAvailability(string userName)
+        {
+            try
+            {
+                var database = LibManagementConnection.GetConnection();
+                var userCollection = database.GetCollection<UserDetails>(CollectionConstant.Login_Collection);
+                var user = await userCollection.FindAsync(x => x.UserName.ToUpper() == userName.ToUpper());
+                var result=await user.ToListAsync();
+                if (result?.Count > 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true; 
+                }
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+
+
+        }
     }
 }

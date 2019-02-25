@@ -29,5 +29,7 @@ namespace ServiceRepository
         Task<bool> IssueBooksToUser(IssueBooks isbnDetails);
 
         List<IssueBooks> GetAllIssuedbooksToUser(string userId);
+
+        Task<bool> CheckUserNameAvailability(string userName);
     }
 }

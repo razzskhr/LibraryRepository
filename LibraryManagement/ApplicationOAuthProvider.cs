@@ -42,7 +42,7 @@ namespace LibraryManagement
                 var loginCollection = database.GetCollection<LoginDetails>(CollectionConstant.Login_Collection);
                 var userCollection = database.GetCollection<UserDetails>(CollectionConstant.User_Collection);
 
-                var logins = await loginCollection.FindAsync(x => x.UserName == context.UserName && x.Password == encryptedPassword);
+                var logins = await loginCollection.FindAsync(x => String.Equals(x.UserName, context.UserName, StringComparison.OrdinalIgnoreCase) && x.Password == encryptedPassword);
                 var loginsList = await logins.ToListAsync();
                 currentUser = loginsList.FirstOrDefault();
                 var users = await userCollection.FindAsync(x => x.UserID == currentUser.UserID);
