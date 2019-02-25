@@ -57,8 +57,8 @@ namespace LibraryManagement.Controllers
                     Email = identityClaims.FindFirst("Email").Value,
                     FirstName = identityClaims.FindFirst("FirstName").Value,
                     LastName = identityClaims.FindFirst("LastName").Value,
-                    UserName = identityClaims.FindFirst("UserName").Value,
-                    UserID = identityClaims.FindFirst("UserId").Value
+                    UserName = identityClaims.FindFirst("UserName").Value
+                    //,UserID = identityClaims.FindFirst("UserId").Value
                 };
                 user.RoleType = res.RoleType;
                 return Ok(user);

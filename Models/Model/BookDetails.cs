@@ -100,8 +100,8 @@ namespace Models
         [BsonIgnore]
         public string BookID { get; set; }
 
-        [BsonIgnore]
-        public string UserId { get; set; }
+        [BsonElement("userName")]
+        public string UserName { get; set; }
 
         [BsonElement("name")]
         public string Name { get; set; }

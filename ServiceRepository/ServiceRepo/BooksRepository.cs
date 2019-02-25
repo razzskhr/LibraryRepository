@@ -290,14 +290,14 @@ namespace ServiceRepository
                 var bookDetails = await bookDetailsCollection.Find(builders).ToListAsync();
                 var configDetails =await configRepository.GetConfigDetails();
                 var data = bookDetailsCollection.Find(x => x.Id == objectId).First();
-                int blockedBooksCount = data.BlockBooks.Count();
+                int blockedBooksCount = data.BlockBooks?.Count() ?? 0;
                 if(blockedBooksCount <=  configDetails.BookBlockLimit )
                 {
                     var IsISBNExists = bookDetails?.All(x => x.BlockBooks?.Any(y => y.ISBNNumber == blockedbookdetails.ISBNNumber) ?? false);
                     if (!IsISBNExists ?? false && blockedbookdetails.BookID != null)
                     {
                         blockedbookdetails.Created = DateTime.Now;
-                        var update = Builders<BookDetails>.Update.Push("blockedBooks", blockedbookdetails).Inc("availableCopies", -1).Inc("blockedCopies", 1).Set("isbnNumer.$.occupied", true);
+                        var update = Builders<BookDetails>.Update.Push("blockedBooks", blockedbookdetails).Inc("availableCopies", -1).Inc("blockedCopies", 1).Set("isbnNumber.$.occupied", true);
                         var result = await bookDetailsCollection.FindOneAndUpdateAsync(builders, update);
                         return true;
                     }

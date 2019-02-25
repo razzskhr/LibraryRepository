@@ -45,7 +45,7 @@ namespace LibraryManagement
                 var logins = await loginCollection.FindAsync(x => x.UserName.ToLower() == context.UserName.ToLower() && x.Password == encryptedPassword);
                 var loginsList = await logins.ToListAsync();
                 currentUser = loginsList.FirstOrDefault();
-                var users = await userCollection.FindAsync(x => x.UserID == currentUser.UserID);
+                var users = await userCollection.FindAsync(x => x.UserName.ToLower() == currentUser.UserName.ToLower());
                 var usersList = await users.ToListAsync();
                 user = usersList.FirstOrDefault();                
 
@@ -63,7 +63,6 @@ namespace LibraryManagement
                 identity.AddClaim(new Claim("FirstName", user.FirstName));
                 identity.AddClaim(new Claim("LastName", user.LastName));
                 identity.AddClaim(new Claim("UserName", user.UserName));
-                identity.AddClaim(new Claim("UserId", user.UserID ?? string.Empty));
                 identity.AddClaim(new Claim("LoggedOn", DateTime.Now.ToString()));
                 identity.AddClaim(new Claim(ClaimTypes.Role, user.RoleType.ToString()));
                 var additionalData = new AuthenticationProperties(new Dictionary<string, string> { 
