@@ -54,7 +54,6 @@ namespace Models
         [BsonElement("lastUpdated")]
         public DateTime LastUpdated { get; set; }
 
-        [Required]
         [BsonElement("roleType")]
         public RoleType RoleType { get; set; }
 
