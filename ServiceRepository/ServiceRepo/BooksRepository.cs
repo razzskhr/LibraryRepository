@@ -107,7 +107,11 @@ namespace ServiceRepository
                     var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
                     ObjectId objectId = ObjectId.Parse(bookDetails.BookID);
                     var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Where(x => x.Id == objectId));
-                    var update = Builders<BookDetails>.Update.Set("name", bookDetails?.Name).Set("author", bookDetails?.Author).Set("publishingYear", bookDetails?.PublishingYear).Set("image", bookDetails?.Image).Set("lastUpdated", System.DateTime.UtcNow);
+                    var update = Builders<BookDetails>.Update.Set("name", bookDetails?.Name).Set("image", bookDetails?.Image).Set("lastUpdated", System.DateTime.UtcNow);
+
+                    //.Set("publishingYear", bookDetails?.PublishingYear)
+
+                    //.Set("author", bookDetails?.Author)
 
                     var result = await todoTaskCollection.FindOneAndUpdateAsync(builders, update);
                     //session.CommitTransaction();
@@ -338,7 +342,7 @@ namespace ServiceRepository
             }
         }
 
-        public async Task<IEnumerable<object>> GetAllLatestBookDetails()
+        public async Task<List<LatestBooks>> GetAllLatestBookDetails()
         {
             try
             {
@@ -354,11 +358,71 @@ namespace ServiceRepository
                                        Edition = item.Edition,
                                        Occupied = item.Occupied,
                                        TrackNo = item.TrackNo,
-                                       PublishingYear = books.PublishingYear,Description=item.Description
-                                   });
+                                       PublishingYear = item.PublishingYear,Description=item.Description
+                                   }).ToList<LatestBooks>();
                 return latestBooks;
             }
             catch(Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public async Task<List<ISBNNumber>> GetAllIsbnDetails()
+        {
+            try
+            {
+                var result = await GetAllBooks();
+                var latestBooks = (from books in result
+                                   where books.ISBNNumber != null && books.ISBNNumber.Count > 0
+                                   from item in books.ISBNNumber
+                                   select new ISBNNumber
+                                   {
+                                       BookID = books.Id.ToString(),
+                                       Author = item.Author,
+                                       BookName = books.Name,
+                                       Created = item.Created,
+                                       Edition = item.Edition,
+                                       Occupied = item.Occupied,
+                                       TrackNo = item.TrackNo,
+                                       Description = item.Description,
+                                       PublishingYear  = item.PublishingYear
+                                   }).ToList<ISBNNumber>();
+                return latestBooks;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public async Task<bool> EditIsbnDetails(ISBNNumber iSBNNumber)
+        {
+            try
+            {
+                var database = LibManagementConnection.GetConnection();
+
+                var booksDetailsCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
+                ObjectId objectId = ObjectId.Parse(iSBNNumber.BookID);
+                var data = await booksDetailsCollection.FindAsync(x => x.Id == objectId);
+                var matchedDetails = await data.ToListAsync();
+                var item = matchedDetails.FirstOrDefault(x => x.Id == objectId);
+                var details = item.ISBNNumber.First(i => i.TrackNo == iSBNNumber.TrackNo);
+                details.Author = iSBNNumber.Author;
+                details.Description = iSBNNumber.Description;
+                details.Edition = iSBNNumber.Edition;
+                details.PublishingYear = iSBNNumber.PublishingYear;
+                var result = booksDetailsCollection.ReplaceOne(c => c.Id == item.Id, item);
+                if (result.IsModifiedCountAvailable)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception e)
             {
                 throw e;
             }

@@ -268,27 +268,83 @@ namespace LibraryManagement.Controllers
             }
             
         }
-        public async Task<IEnumerable<object>> GetLatestBookDetails()
+
+        [HttpPost]
+        [Route("api/Books/GetLatestBookDetails")]
+        public async Task<IHttpActionResult> GetLatestBookDetails()
         {
             try
             {
                 var res = await booksRepository.GetAllLatestBookDetails();
                 if (res != null)
                 {
-                    return res;
+                    return Ok(res);
                 }
                 else
                 {
-                    return new List<object>();
+                    return NotFound();
                 }
               
             }
              catch (Exception e)
             {
                 loggers.LogError(e);
-                return new List<object>();
+                return InternalServerError();
             }
 
         }
+
+        //[Authorize]
+        [HttpGet]
+        [Route("api/Books/GetAllIsbnDetails")]
+        public async Task<IHttpActionResult> GetAllIsbnDetails()
+        {
+            try
+            {
+                var res = await booksRepository.GetAllIsbnDetails();
+                if (res != null)
+                {
+                    return Ok(res);
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            catch (Exception e)
+            {
+                loggers.LogError(e);
+                return InternalServerError();
+            }
+
+        }
+
+
+        [HttpPost]
+        [Route("api/Books/EditBook")]
+        public async Task<IHttpActionResult> EditBookDetails([FromBody] ISBNNumber iSBNNumber)
+        {
+            try
+            {
+                var res = await booksRepository.EditIsbnDetails(iSBNNumber);
+                if (res)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            catch (Exception e)
+            {
+                loggers.LogError(e);
+                return InternalServerError();
+            }
+
+        }
+
     }
 }

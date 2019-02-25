@@ -26,6 +26,10 @@ namespace ServiceRepository
         Task<bool> BlockBooks(BlockBooks blockedbookdetails);
         Task<bool> UnBlockBooks(BlockBooks blockedbookdetails);
 
-        Task<IEnumerable<object>> GetAllLatestBookDetails();
+        Task<List<ISBNNumber>> GetAllIsbnDetails();
+
+        Task<List<LatestBooks>> GetAllLatestBookDetails();
+
+        Task<bool> EditIsbnDetails(ISBNNumber iSBNNumber);
     }
 }

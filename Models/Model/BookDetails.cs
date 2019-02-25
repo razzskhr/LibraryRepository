@@ -26,10 +26,6 @@ namespace Models
         [BsonElement("name")]
         public string Name { get; set; }
 
-        [Required]
-        [BsonElement("publishingYear")]
-        public string PublishingYear { get; set; }
-
         [BsonElement("numberOfCopies")]
         public int NumberOfCopies { get; set; }
 
@@ -81,6 +77,9 @@ namespace Models
 
         [BsonElement("created")]
         public DateTime Created { get; set; }
+
+        [BsonElement("publishingYear")]
+        public string PublishingYear { get; set; }
 
         [BsonIgnore]
         public string BookName { get; set; }
