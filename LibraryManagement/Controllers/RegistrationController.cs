@@ -49,7 +49,7 @@ namespace LibraryManagement.Controllers
                     var userLoginDetails = new LoginDetails()
                     {
                         Password = user.Password,
-                        UserName = user.UserName,
+                        UserName = user.UserName.ToLower(),
                         UserID = user.UserID,
 
                     };
@@ -58,6 +58,7 @@ namespace LibraryManagement.Controllers
                     userdetails.LastUpdated = DateTime.Now;
                     userdetails.Password = null;
                     userdetails.RoleType = RoleType.Student;
+                    userdetails.UserName = user.UserName.ToLower();
 
                     var res = await userRepository.RegisterUser(userLoginDetails, userdetails);
                     if (res?.StatusCode != HttpStatusCode.OK)

@@ -98,7 +98,7 @@ namespace ServiceRepository
                 var database = LibManagementConnection.GetConnection();
                 var userCollection = database.GetCollection<UserDetails>(CollectionConstant.User_Collection);
                 var loginCollection = database.GetCollection<LoginDetails>(CollectionConstant.Login_Collection);
-                var logins = await userCollection.FindAsync(x => x.UserName == userdetails.UserName || x.UserID == userdetails.UserID || x.Email == userdetails.Email);
+                var logins = await loginCollection.FindAsync(x => x.UserName.ToLower() == userdetails.UserName.ToLower());
                 var loginsList = await logins.ToListAsync();
                 string encryptedPassword = await passwordRepository.GetEncryptedPassword(userLoginDetails.Password);
                 userLoginDetails.Password = encryptedPassword;
