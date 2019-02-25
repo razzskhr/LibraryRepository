@@ -286,7 +286,7 @@ namespace ServiceRepository
                 var database = LibManagementConnection.GetConnection();
                 var bookDetailsCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
                 ObjectId objectId = ObjectId.Parse(blockedbookdetails.BookID);
-                var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Eq(x => x.Id, objectId));
+                var builders = Builders<BookDetails>.Filter.And(Builders<BookDetails>.Filter.Eq(x => x.Id, objectId), Builders<BookDetails>.Filter.ElemMatch(x => x.ISBNNumber, c => c.TrackNo == blockedbookdetails.ISBNNumber));
                 var bookDetails = await bookDetailsCollection.Find(builders).ToListAsync();
                 var configDetails =await configRepository.GetConfigDetails();
                 var data = bookDetailsCollection.Find(x => x.Id == objectId).First();
@@ -297,7 +297,7 @@ namespace ServiceRepository
                     if (!IsISBNExists ?? false && blockedbookdetails.BookID != null)
                     {
                         blockedbookdetails.Created = DateTime.Now;
-                        var update = Builders<BookDetails>.Update.Push("blockedBooks", blockedbookdetails).Inc("availableCopies", -1).Inc("blockedCopies", 1);
+                        var update = Builders<BookDetails>.Update.Push("blockedBooks", blockedbookdetails).Inc("availableCopies", -1).Inc("blockedCopies", 1).Set("isbnNumer.$.occupied", true);
                         var result = await bookDetailsCollection.FindOneAndUpdateAsync(builders, update);
                         return true;
                     }
