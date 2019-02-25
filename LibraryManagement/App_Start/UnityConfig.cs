@@ -22,6 +22,7 @@ namespace LibraryManagement
             container.RegisterType<IUserRepository, UserRepository>();
             container.RegisterType<IBooksRepository, BooksRepository>();
             container.RegisterType<IPasswordRepository,PasswordRepository>();
+            container.RegisterType<IImageRepository, ImageRepository>();
 
             GlobalConfiguration.Configuration.DependencyResolver = new UnityDependencyResolver(container);
         }

@@ -25,11 +25,13 @@ namespace LibraryManagement.Controllers
         private IBooksRepository booksRepository;
         private ILoggers loggers;
         private IUserRepository userRepository;
-        public BooksController(IBooksRepository booksRepository, ILoggers loggers,IUserRepository userRepository)
+        private IImageRepository imageRepository;
+        public BooksController(IBooksRepository booksRepository, ILoggers loggers,IUserRepository userRepository, IImageRepository imageRepository)
         {
             this.booksRepository = booksRepository;
             this.loggers = loggers;
             this.userRepository = userRepository;
+            this.imageRepository = imageRepository;
         }
 
         [Authorize]
@@ -79,11 +81,10 @@ namespace LibraryManagement.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    UploadImage image = new UploadImage();
                     var httprequest = HttpContext.Current.Request;
                     var model = httprequest.Form["model"];
                     var bookDetails = JsonConvert.DeserializeObject<BookDetails>(model);
-                    var res = await image.UploadImageToAzure(Request.Content);
+                    var res = await imageRepository.UploadImageToAzure(Request.Content);
                     ////var result = await booksRepository.AddNewBook(bookDetails, res.Message);
                     if (res.StatusCode != HttpStatusCode.OK)
                     {

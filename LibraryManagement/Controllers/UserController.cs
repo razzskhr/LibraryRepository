@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
 
 namespace LibraryManagement.Controllers
@@ -17,14 +18,16 @@ namespace LibraryManagement.Controllers
     {
         private IUserRepository userRepository;
         private ILoggers loggers;
+        private IImageRepository imageRepository;
 
-        public UserController(IUserRepository userRepository, ILoggers loggers)
+        public UserController(IUserRepository userRepository, ILoggers loggers, IImageRepository imageRepository)
         {
             this.userRepository = userRepository;
             this.loggers = loggers;
+            this.imageRepository = imageRepository;
         }
 
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles = "Admin")]
         // GET: api/User
         public async Task<List<UserDetails>> Get()
         {
@@ -40,7 +43,7 @@ namespace LibraryManagement.Controllers
 
             return userDetails;
         }
-        
+
         [HttpGet]
         [Route("api/GetUserClaims")]
         public IHttpActionResult GetUserClaims()
@@ -80,8 +83,7 @@ namespace LibraryManagement.Controllers
         {
             try
             {
-                UploadImage image = new UploadImage();
-                var res = await image.UploadImageToAzure(Request.Content);
+                var res = await imageRepository.UploadImageToAzure(Request.Content);
                 if (res.StatusCode != HttpStatusCode.OK)
                 {
                     return new HttpResponseMessage() { StatusCode = res.StatusCode };
@@ -135,7 +137,7 @@ namespace LibraryManagement.Controllers
         {
         }
 
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles = "Admin")]
         // DELETE: api/User/5
         public async Task<HttpResponseMessage> Delete([FromBody]LoginDetails user)
         {
@@ -170,6 +172,65 @@ namespace LibraryManagement.Controllers
             {
                 loggers.LogError(e);
                 return new List<IssueBooks>();
+            }
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("api/user/UpdateUser")]
+        public async Task<IHttpActionResult> UpdateUser()
+        {
+            Response<string> response = null;
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var httprequest = HttpContext.Current.Request;
+                var model = httprequest.Form["model"];
+                var userDetails = JsonConvert.DeserializeObject<UserDetails>(model);
+                if (httprequest.Files.Count > 0)
+                {
+                    if (await DeleteImage(userDetails.Image))
+                        response = await imageRepository.UploadImageToAzure(Request.Content);
+                }
+                if (response?.StatusCode != HttpStatusCode.OK)
+                {
+                    return BadRequest(response.Message);
+                }
+                else
+                {
+                    userDetails.Image = response?.Message == string.Empty ? userDetails.Image : response.Message;
+                    var result = await userRepository.UpdateUserDetails(userDetails);
+                    if (result)
+                    {
+                        return Ok(result);
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                loggers.LogError(ex);
+                return InternalServerError();
+            }
+        }
+
+
+        public async Task<bool> DeleteImage(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return true;
+            }
+            else
+            {
+                var result = await imageRepository.RemoveImageFromAzure(fileName);
+                return result.ResultType == ResultType.Success;
             }
         }
     }

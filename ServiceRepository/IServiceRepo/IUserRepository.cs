@@ -30,6 +30,8 @@ namespace ServiceRepository
 
         List<IssueBooks> GetAllIssuedbooksToUser(string userId);
 
+        Task<bool> UpdateUserDetails(UserDetails userDetails);
+
         Task<bool> CheckUserNameAvailability(string userName);
     }
 }
