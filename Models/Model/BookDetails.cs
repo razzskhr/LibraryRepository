@@ -27,10 +27,6 @@ namespace Models
         public string Name { get; set; }
 
         [Required]
-        [BsonElement("author")]
-        public string Author { get; set; }
-
-        [Required]
         [BsonElement("publishingYear")]
         public string PublishingYear { get; set; }
 
@@ -80,8 +76,14 @@ namespace Models
         [BsonElement("description")]
         public string Description { get; set; }
 
+        [BsonElement("author")]
+        public string Author { get; set; }
+
         [BsonElement("created")]
         public DateTime Created { get; set; }
+
+        [BsonIgnore]
+        public string BookName { get; set; }
     }
 
     public class NotificationDetails
