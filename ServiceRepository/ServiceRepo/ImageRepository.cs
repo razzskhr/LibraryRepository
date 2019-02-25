@@ -17,9 +17,34 @@ namespace ServiceRepository
     {
         private const string Container = "blobs";
 
-        public Task<Response<bool>> RemoveImageFromAzure(string url)
+        private CloudBlobContainer blobContainer;
+
+        public void DeleteFile(string uniqueFileIdentifier)
         {
-            throw new NotImplementedException();
+
+        }
+
+
+
+
+        public async Task<Response<bool>> RemoveImageFromAzure(string url)
+        {
+            try
+            {
+                var fileName = url;
+                GetStorageReference();
+                var blob = this.blobContainer.GetBlockBlobReference(fileName);
+                var result = await blob.DeleteIfExistsAsync();
+                if (result)
+                    return new Response<bool>() { StatusCode = HttpStatusCode.OK, ResultType = ResultType.Success };
+                return new Response<bool>() { StatusCode = HttpStatusCode.BadRequest, ResultType = ResultType.Error };
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
         }
 
         public async Task<Response<string>> UploadImageToAzure(HttpContent request)
@@ -28,20 +53,13 @@ namespace ServiceRepository
             {
                 string[] _supportedMimeTypes = { "image/png", "image/jpeg", "image/jpg" };
                 var httprequest = HttpContext.Current.Request;
-                ////var model = httprequest.Form["model"];
                 if (!request.IsMimeMultipartContent("form-data"))
                 {
                     return new Response<string>() { StatusCode = System.Net.HttpStatusCode.UnsupportedMediaType };
                 }
+                GetStorageReference();
 
-                var accountName = ConfigurationManager.AppSettings["storage:account:name"];
-                var accountKey = ConfigurationManager.AppSettings["storage:account:key"];
-                var storagePath = ConfigurationManager.AppSettings["storagePath"];
-                var storageAccount = new CloudStorageAccount(new StorageCredentials(accountName, accountKey), true);
-                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-
-                CloudBlobContainer imagesContainer = blobClient.GetContainerReference(Container);
-                var provider = new AzureStorageMultipartFormDataStreamProvider(imagesContainer);
+                var provider = new AzureStorageMultipartFormDataStreamProvider(blobContainer);
 
                 try
                 {
@@ -50,9 +68,10 @@ namespace ServiceRepository
                 catch (Exception ex)
                 {
                     return new Response<string>() { StatusCode = System.Net.HttpStatusCode.BadRequest, Message = $"An error has occured.Details: { ex.Message}" };
-                    
+
                 }
 
+                var storagePath = ConfigurationManager.AppSettings["storagePath"];
                 // Retrieve the filename of the file you have uploaded
                 var filename = provider.FileData.FirstOrDefault()?.LocalFileName;
                 var filePath = string.Concat(storagePath, filename);
@@ -66,6 +85,17 @@ namespace ServiceRepository
             {
                 throw ex;
             }
+        }
+
+        private void GetStorageReference()
+        {
+            var accountName = ConfigurationManager.AppSettings["storage:account:name"];
+            var accountKey = ConfigurationManager.AppSettings["storage:account:key"];
+            var storageAccount = new CloudStorageAccount(new StorageCredentials(accountName, accountKey), true);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+
+            blobContainer = blobClient.GetContainerReference(Container);
+
         }
 
     }

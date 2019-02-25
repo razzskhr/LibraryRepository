@@ -183,41 +183,54 @@ namespace LibraryManagement.Controllers
             Response<string> response = null;
             try
             {
-                if (ModelState.IsValid)
+                if (!ModelState.IsValid)
                 {
-                    var httprequest = HttpContext.Current.Request;
-                    var model = httprequest.Form["model"];
-                    var userDetails = JsonConvert.DeserializeObject<UserDetails>(model);
-                    if (httprequest.Files.Count > 0)
-                    {
+                    return BadRequest(ModelState);
+                }
+                var httprequest = HttpContext.Current.Request;
+                var model = httprequest.Form["model"];
+                var userDetails = JsonConvert.DeserializeObject<UserDetails>(model);
+                if (httprequest.Files.Count > 0)
+                {
+                    if (await DeleteImage(userDetails.Image))
                         response = await imageRepository.UploadImageToAzure(Request.Content);
-                    }
-                    if (response?.StatusCode != HttpStatusCode.OK)
+                }
+                if (response?.StatusCode != HttpStatusCode.OK)
+                {
+                    return BadRequest(response.Message);
+                }
+                else
+                {
+                    userDetails.Image = response?.Message == string.Empty ? userDetails.Image : response.Message;
+                    var result = await userRepository.UpdateUserDetails(userDetails);
+                    if (result)
                     {
-                        return BadRequest(response.Message);
+                        return Ok(result);
                     }
                     else
                     {
-                        userDetails.Image = response?.Message == string.Empty ? userDetails.Image : response.Message;
-                        var result = await userRepository.UpdateUserDetails(userDetails);
-                        if (result)
-                        {
-                            return Ok(result);
-                        }
-                        else
-                        {
-                            return NotFound();
-                        }
+                        return NotFound();
                     }
                 }
-                else
-                    return BadRequest(ModelState);
-
             }
             catch (Exception ex)
             {
                 loggers.LogError(ex);
                 return InternalServerError();
+            }
+        }
+
+
+        public async Task<bool> DeleteImage(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return true;
+            }
+            else
+            {
+                var result = await imageRepository.RemoveImageFromAzure(fileName);
+                return result.ResultType == ResultType.Success;
             }
         }
     }
