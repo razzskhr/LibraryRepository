@@ -21,9 +21,13 @@ namespace ServiceRepository
         Task<BookDetails> AddNewBook(BookDetails bookDetails, string image);
 
         Task<bool> DeleteBookDetails(ISBNNumber isbnDetails);
+
         bool ReturnBooks(IssueBooks issueBooks);
+
         Task<bool> IssueBooks(IssueBooks issueBooks);
+
         Task<bool> BlockBooks(BlockBooks blockedbookdetails);
+
         Task<bool> UnBlockBooks(BlockBooks blockedbookdetails);
 
         Task<List<ISBNNumber>> GetAllIsbnDetails();
