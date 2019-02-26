@@ -88,5 +88,19 @@ namespace Models
 
         [BsonElement("issuedOn")]
         public DateTime IssuedOn { get; set; }
+
+        [BsonElement("name")]
+        public string Name { get; set; }
+
+        [Required]
+        [BsonElement("author")]
+        public string Author { get; set; }
+
+        [BsonElement("edition")]
+        public string Edition { get; set; }
+
+
+        [BsonElement("description")]
+        public string Description { get; set; }
     }
 }
