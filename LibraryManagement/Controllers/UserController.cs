@@ -195,13 +195,13 @@ namespace LibraryManagement.Controllers
                     if (await DeleteImage(userDetails.Image))
                         response = await imageRepository.UploadImageToAzure(Request.Content);
                 }
-                if (response?.StatusCode != HttpStatusCode.OK)
+                if (httprequest.Files.Count > 0 && response?.StatusCode != HttpStatusCode.OK)
                 {
                     return BadRequest(response.Message);
                 }
                 else
                 {
-                    userDetails.Image = response?.Message == string.Empty ? userDetails.Image : response.Message;
+                    userDetails.Image = httprequest.Files.Count > 0 ? response.Message : userDetails.Image;
                     var result = await userRepository.UpdateUserDetails(userDetails);
                     if (result)
                     {

@@ -377,7 +377,7 @@ namespace ServiceRepository
                     //session = database.Client.StartSession();
                     //session.StartTransaction();
                     var todoTaskCollection = database.GetCollection<UserDetails>(CollectionConstant.User_Collection);
-                    var builders = Builders<UserDetails>.Filter.And(Builders<UserDetails>.Filter.Where(x => x.UserName == userDetails.UserName));
+                    var builders = Builders<UserDetails>.Filter.And(Builders<UserDetails>.Filter.Where(x => x.UserName.ToLower() == userDetails.UserName.ToLower()));
                     var update = Builders<UserDetails>.Update.Set("firstName", userDetails.FirstName).Set("middleName", userDetails.MiddleName)
                                                              .Set("lastName", userDetails.LastName).Set("image", userDetails.Image).Set("lastUpdated", System.DateTime.UtcNow)
                                                              .Set("dob", userDetails.DateofBirth).Set("phoneNumber", userDetails.PhoneNumber);
