@@ -19,14 +19,14 @@ using Models.Model;
 
 namespace LibraryManagement.Controllers
 {
-    
+
     public class BooksController : ApiController
     {
         private IBooksRepository booksRepository;
         private ILoggers loggers;
         private IUserRepository userRepository;
         private IImageRepository imageRepository;
-        public BooksController(IBooksRepository booksRepository, ILoggers loggers,IUserRepository userRepository, IImageRepository imageRepository)
+        public BooksController(IBooksRepository booksRepository, ILoggers loggers, IUserRepository userRepository, IImageRepository imageRepository)
         {
             this.booksRepository = booksRepository;
             this.loggers = loggers;
@@ -68,9 +68,9 @@ namespace LibraryManagement.Controllers
             {
                 loggers.LogError(ex);
                 return InternalServerError();
-            }            
+            }
         }
-        
+
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [Route("api/Books/AddNewCategoryBook")]
@@ -190,12 +190,12 @@ namespace LibraryManagement.Controllers
                     return BadRequest();
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 loggers.LogError(e);
                 return InternalServerError();
             }
-            
+
         }
 
         [HttpPost]
@@ -215,12 +215,12 @@ namespace LibraryManagement.Controllers
                     return BadRequest();
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 loggers.LogError(e);
                 return InternalServerError();
             }
-           
+
         }
         [HttpPost]
         [Route("api/Books/BlockBooks")]
@@ -229,7 +229,7 @@ namespace LibraryManagement.Controllers
             try
             {
                 var isBookBlocked = await booksRepository.BlockBooks(blockedBooks);
-                if(isBookBlocked)
+                if (isBookBlocked)
                 {
                     return Ok();
                 }
@@ -237,9 +237,9 @@ namespace LibraryManagement.Controllers
                 {
                     return BadRequest();
                 }
-                
+
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 loggers.LogError(e);
                 return InternalServerError();
@@ -261,15 +261,15 @@ namespace LibraryManagement.Controllers
                     return BadRequest();
                 }
             }
-             catch (Exception e)
+            catch (Exception e)
             {
                 loggers.LogError(e);
                 return InternalServerError();
             }
-            
+
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("api/Books/GetLatestBookDetails")]
         public async Task<IHttpActionResult> GetLatestBookDetails()
         {
@@ -284,9 +284,9 @@ namespace LibraryManagement.Controllers
                 {
                     return NotFound();
                 }
-              
+
             }
-             catch (Exception e)
+            catch (Exception e)
             {
                 loggers.LogError(e);
                 return InternalServerError();
@@ -345,6 +345,37 @@ namespace LibraryManagement.Controllers
             }
 
         }
+
+        [HttpGet]
+        [Route("api/Books/GetDashbaordDetails")]
+        public async Task<IHttpActionResult> GetDashbaordDetails()
+        {
+            try
+            {
+                DashboardDetails dashboardDetails = new DashboardDetails();
+                var userList = await userRepository.GetAllUsers();
+                var bookList = await booksRepository.GetAllBooks();
+                if (userList != null)
+                {
+                    var blockedBooks = userList.Sum(x => x.BlockedCopies);
+                    dashboardDetails.RegisteredUsers = userList.Count;
+                    dashboardDetails.BlockedBooksCount = blockedBooks;
+                }
+                if (bookList != null)
+                {
+                    dashboardDetails.IssuedBooksCount = bookList.Sum(x => x.AvailableCopies);
+                }
+                dashboardDetails.ConfigrationValuesCount = 3;
+
+                return Ok(dashboardDetails);
+            }
+            catch (Exception e)
+            {
+                loggers.LogError(e);
+                return InternalServerError();
+            }
+        }
+
 
     }
 }

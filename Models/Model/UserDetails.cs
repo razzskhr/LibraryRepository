@@ -68,6 +68,9 @@ namespace Models
         [BsonElement("image")]
         public string Image { get; set; }
 
+        [BsonElement("blockedCopies")]
+        public int BlockedCopies { get; set; }
+
         [Required]
         [BsonIgnore]
         public string Password { get; set; }

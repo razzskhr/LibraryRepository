@@ -50,6 +50,7 @@
     <Compile Include="CollectionConstant.cs" />
     <Compile Include="Model\BookDetails.cs" />
     <Compile Include="Model\ConfigDetails.cs" />
+    <Compile Include="Model\DashboardDetails.cs" />
     <Compile Include="Model\EmailContract.cs" />
     <Compile Include="Model\EmailServiceException.cs" />
     <Compile Include="Model\LatestBooks.cs" />

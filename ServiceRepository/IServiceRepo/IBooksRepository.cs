@@ -31,5 +31,7 @@ namespace ServiceRepository
         Task<List<LatestBooks>> GetAllLatestBookDetails();
 
         Task<bool> EditIsbnDetails(ISBNNumber iSBNNumber);
+
+        Task<object> GetDashboardDetails();
     }
 }

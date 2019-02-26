@@ -135,12 +135,13 @@ namespace ServiceRepository
                 var database = LibManagementConnection.GetConnection();
                 //clientSession = await database.Client.StartSessionAsync();
                 var loginCollection = database.GetCollection<LoginDetails>(CollectionConstant.Login_Collection);
-                var logins = await loginCollection.FindAsync(x => x.UserName == userLoginDetails.UserName);
-                if (logins.ToListAsync().Result.Count > 0)
+                var logins = await loginCollection.FindAsync(x => x.UserName == userLoginDetails.UserName && x.Password == oldPassword);
+                var loginList = await logins.ToListAsync();
+                if (loginList?.Count > 0)
                 {
                     //clientSession.StartTransaction();
                     userLoginDetails.Password = newPassword;
-                    var builders = Builders<LoginDetails>.Filter.And(Builders<LoginDetails>.Filter.Where(x => x.UserName == userLoginDetails.UserName));
+                    var builders = Builders<LoginDetails>.Filter.And(Builders<LoginDetails>.Filter.Where(x => x.UserName == userLoginDetails.UserName && x.Password == oldPassword));
                     var update = Builders<LoginDetails>.Update.Set("password", userLoginDetails.Password);
                     var result = await loginCollection.FindOneAndUpdateAsync(builders, update);
                     //await clientSession.CommitTransactionAsync();

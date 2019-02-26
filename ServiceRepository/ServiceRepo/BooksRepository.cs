@@ -352,6 +352,8 @@ namespace ServiceRepository
                                    from item in books.ISBNNumber
                                    select new LatestBooks
                                    {
+                                       BookID = books.Id.ToString(),
+                                       Author = item.Author,
                                        Name = books.Name,
                                        Image = books.Image,
                                        Created = item.Created,
@@ -359,7 +361,7 @@ namespace ServiceRepository
                                        Occupied = item.Occupied,
                                        TrackNo = item.TrackNo,
                                        PublishingYear = item.PublishingYear,Description=item.Description
-                                   }).ToList<LatestBooks>();
+                                   }).OrderByDescending(x => x.Created).Take(10).ToList<LatestBooks>();
                 return latestBooks;
             }
             catch(Exception e)
@@ -426,6 +428,11 @@ namespace ServiceRepository
             {
                 throw e;
             }
+        }
+
+        public Task<object> GetDashboardDetails()
+        {
+            throw new NotImplementedException();
         }
     }
 }
