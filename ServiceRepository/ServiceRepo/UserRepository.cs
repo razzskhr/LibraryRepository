@@ -331,7 +331,7 @@ namespace ServiceRepository
             {
                 var database = LibManagementConnection.GetConnection();
                 var userCollection = database.GetCollection<UserDetails>(CollectionConstant.User_Collection);
-                var user = userCollection.Find(x => x.UserID == userId).First();
+                var user = userCollection.Find(x => x.UserName == userId).First();
                 var issuedbooks = user.IssuedBooks.OrderBy(x => x.ReturnDate).ToList();
                 return issuedbooks;
 

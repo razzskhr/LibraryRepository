@@ -165,7 +165,7 @@ namespace LibraryManagement.Controllers
         {
             try
             {
-                var IssuesBookDetails = userRepository.GetAllIssuedbooksToUser(userDetails.UserID);
+                var IssuesBookDetails = userRepository.GetAllIssuedbooksToUser(userDetails.UserName);
                 return IssuesBookDetails;
             }
             catch (Exception e)
