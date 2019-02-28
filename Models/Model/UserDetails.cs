@@ -54,7 +54,6 @@ namespace Models
         [BsonElement("lastUpdated")]
         public DateTime LastUpdated { get; set; }
 
-        [Required]
         [BsonElement("roleType")]
         public RoleType RoleType { get; set; }
 
@@ -69,6 +68,9 @@ namespace Models
         [BsonElement("image")]
         public string Image { get; set; }
 
+        [BsonElement("blockedCopies")]
+        public int BlockedCopies { get; set; }
+
         [Required]
         [BsonIgnore]
         public string Password { get; set; }
@@ -78,6 +80,9 @@ namespace Models
     }
     public class IssueBooks
     {
+        [BsonIgnore]
+        public string BookID { get; set; }
+
         [BsonElement("isbnNumber")]
         public string ISBNNumber { get; set; }
 
@@ -86,5 +91,19 @@ namespace Models
 
         [BsonElement("issuedOn")]
         public DateTime IssuedOn { get; set; }
+
+        [BsonElement("name")]
+        public string Name { get; set; }
+
+        [Required]
+        [BsonElement("author")]
+        public string Author { get; set; }
+
+        [BsonElement("edition")]
+        public string Edition { get; set; }
+
+
+        [BsonElement("description")]
+        public string Description { get; set; }
     }
 }

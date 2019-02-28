@@ -1,4 +1,5 @@
 ﻿using Models;
+using Models.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,5 +22,20 @@ namespace ServiceRepository
 
         Task<bool> DeleteBookDetails(ISBNNumber isbnDetails);
 
+        bool ReturnBooks(IssueBooks issueBooks);
+
+        Task<bool> IssueBooks(IssueBooks issueBooks);
+
+        Task<bool> BlockBooks(BlockBooks blockedbookdetails);
+
+        Task<bool> UnBlockBooks(BlockBooks blockedbookdetails);
+
+        Task<List<ISBNNumber>> GetAllIsbnDetails();
+
+        Task<List<LatestBooks>> GetAllLatestBookDetails();
+
+        Task<bool> EditIsbnDetails(ISBNNumber iSBNNumber);
+
+        Task<object> GetDashboardDetails();
     }
 }

@@ -15,18 +15,23 @@ using System.Text;
 using LibraryManagement.Helpers;
 using Loggers;
 using System.Web;
+using Models.Model;
 
 namespace LibraryManagement.Controllers
 {
-    
+
     public class BooksController : ApiController
     {
         private IBooksRepository booksRepository;
         private ILoggers loggers;
-        public BooksController(IBooksRepository booksRepository, ILoggers loggers)
+        private IUserRepository userRepository;
+        private IImageRepository imageRepository;
+        public BooksController(IBooksRepository booksRepository, ILoggers loggers, IUserRepository userRepository, IImageRepository imageRepository)
         {
             this.booksRepository = booksRepository;
             this.loggers = loggers;
+            this.userRepository = userRepository;
+            this.imageRepository = imageRepository;
         }
 
         [Authorize]
@@ -63,9 +68,9 @@ namespace LibraryManagement.Controllers
             {
                 loggers.LogError(ex);
                 return InternalServerError();
-            }            
+            }
         }
-        
+
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [Route("api/Books/AddNewCategoryBook")]
@@ -76,11 +81,10 @@ namespace LibraryManagement.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    UploadImage image = new UploadImage();
                     var httprequest = HttpContext.Current.Request;
                     var model = httprequest.Form["model"];
                     var bookDetails = JsonConvert.DeserializeObject<BookDetails>(model);
-                    var res = await image.UploadImageToAzure(Request.Content);
+                    var res = await imageRepository.UploadImageToAzure(Request.Content);
                     ////var result = await booksRepository.AddNewBook(bookDetails, res.Message);
                     if (res.StatusCode != HttpStatusCode.OK)
                     {
@@ -169,5 +173,209 @@ namespace LibraryManagement.Controllers
             }
 
         }
+        [HttpPost]
+        [Route("api/Books/ReturnBooks")]
+        public async Task<IHttpActionResult> ReturnBooks([FromBody]IssueBooks issueBooks)
+        {
+            try
+            {
+                var isBookDeleted = await userRepository.UserReturnBooks(issueBooks);
+                var isAvailableCopiesIncreased = booksRepository.ReturnBooks(issueBooks);
+                if (isBookDeleted && isAvailableCopiesIncreased)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (Exception e)
+            {
+                loggers.LogError(e);
+                return InternalServerError();
+            }
+
+        }
+
+        [HttpPost]
+        [Route("api/Books/IssueBooks")]
+        public async Task<IHttpActionResult> IssueBooks([FromBody]IssueBooks issueBooks)
+        {
+            try
+            {
+                var isBookAddedToUser = await userRepository.IssueBooksToUser(issueBooks);
+                var isAvailableCopiesDecreased = await booksRepository.IssueBooks(issueBooks);
+                if (isBookAddedToUser && isAvailableCopiesDecreased)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (Exception e)
+            {
+                loggers.LogError(e);
+                return InternalServerError();
+            }
+
+        }
+        [HttpPost]
+        [Route("api/Books/BlockBooks")]
+        public async Task<IHttpActionResult> BlockBooks([FromBody] BlockBooks blockedBooks)
+        {
+            try
+            {
+                var isBookBlocked = await booksRepository.BlockBooks(blockedBooks);
+                if (isBookBlocked)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+
+            }
+            catch (Exception e)
+            {
+                loggers.LogError(e);
+                return InternalServerError();
+            }
+        }
+        [HttpPost]
+        [Route("api/Books/UnBlockBooks")]
+        public async Task<IHttpActionResult> UnBlockBooks([FromBody] BlockBooks blockedBooks)
+        {
+            try
+            {
+                var isBookUnBlocked = await booksRepository.UnBlockBooks(blockedBooks);
+                if (isBookUnBlocked)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            catch (Exception e)
+            {
+                loggers.LogError(e);
+                return InternalServerError();
+            }
+
+        }
+
+        [HttpGet]
+        [Route("api/Books/GetLatestBookDetails")]
+        public async Task<IHttpActionResult> GetLatestBookDetails()
+        {
+            try
+            {
+                var res = await booksRepository.GetAllLatestBookDetails();
+                if (res != null)
+                {
+                    return Ok(res);
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            catch (Exception e)
+            {
+                loggers.LogError(e);
+                return InternalServerError();
+            }
+
+        }
+
+        //[Authorize]
+        [HttpGet]
+        [Route("api/Books/GetAllIsbnDetails")]
+        public async Task<IHttpActionResult> GetAllIsbnDetails()
+        {
+            try
+            {
+                var res = await booksRepository.GetAllIsbnDetails();
+                if (res != null)
+                {
+                    return Ok(res);
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            catch (Exception e)
+            {
+                loggers.LogError(e);
+                return InternalServerError();
+            }
+
+        }
+
+
+        [HttpPost]
+        [Route("api/Books/EditBook")]
+        public async Task<IHttpActionResult> EditBookDetails([FromBody] ISBNNumber iSBNNumber)
+        {
+            try
+            {
+                var res = await booksRepository.EditIsbnDetails(iSBNNumber);
+                if (res)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            catch (Exception e)
+            {
+                loggers.LogError(e);
+                return InternalServerError();
+            }
+
+        }
+
+        [HttpGet]
+        [Route("api/Books/GetDashbaordDetails")]
+        public async Task<IHttpActionResult> GetDashbaordDetails()
+        {
+            try
+            {
+                DashboardDetails dashboardDetails = new DashboardDetails();
+                var userList = await userRepository.GetAllUsers();
+                var bookList = await booksRepository.GetAllBooks();
+                if (userList != null)
+                {
+                    var blockedBooks = userList.Sum(x => x.BlockedCopies);
+                    dashboardDetails.RegisteredUsers = userList.Count;
+                    dashboardDetails.BlockedBooksCount = blockedBooks;
+                }
+                if (bookList != null)
+                {
+                    dashboardDetails.IssuedBooksCount = bookList.Sum(x => x.AvailableCopies);
+                }
+                dashboardDetails.ConfigrationValuesCount = 3;
+
+                return Ok(dashboardDetails);
+            }
+            catch (Exception e)
+            {
+                loggers.LogError(e);
+                return InternalServerError();
+            }
+        }
+
+
     }
 }

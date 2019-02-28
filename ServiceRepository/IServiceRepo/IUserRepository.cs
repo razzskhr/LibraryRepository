@@ -17,9 +17,21 @@ namespace ServiceRepository
 
 
         Task<bool> UpdatePassword(LoginDetails userLoginDetails);
-        Task<IEnumerable<object>> GetUserMailList();
 
         Task<Response<string>> InsertImageFileName(string UserName, string image);
 
+        Task<List<string>> GetUserMailList();
+
+        Task<bool> RemoveAllBlockedBookList();
+
+        Task<bool> DeleteUser(string id);
+        Task<bool> UserReturnBooks(IssueBooks isbnDetails);
+        Task<bool> IssueBooksToUser(IssueBooks isbnDetails);
+
+        List<IssueBooks> GetAllIssuedbooksToUser(string userId);
+
+        Task<bool> UpdateUserDetails(UserDetails userDetails);
+
+        Task<bool> CheckUserNameAvailability(string userName);
     }
 }

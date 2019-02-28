@@ -18,17 +18,13 @@ namespace Models
         [BsonElement("isbnNumber")]
         public List<ISBNNumber> ISBNNumber { get; set; }
 
+        [BsonIgnoreIfNull]
+        [BsonElement("blockedBooks")]
+        public List<BlockBooks> BlockBooks { get; set; }
+
         [Required]
         [BsonElement("name")]
         public string Name { get; set; }
-
-        [Required]
-        [BsonElement("author")]
-        public string Author { get; set; }
-
-        [Required]
-        [BsonElement("publishingYear")]
-        public string PublishingYear { get; set; }
 
         [BsonElement("numberOfCopies")]
         public int NumberOfCopies { get; set; }
@@ -73,8 +69,20 @@ namespace Models
         [BsonElement("requestForBlock")]
         public string RequestForBlock { get; set; }
 
+        [BsonElement("description")]
+        public string Description { get; set; }
+
+        [BsonElement("author")]
+        public string Author { get; set; }
+
         [BsonElement("created")]
         public DateTime Created { get; set; }
+
+        [BsonElement("publishingYear")]
+        public string PublishingYear { get; set; }
+
+        [BsonIgnore]
+        public string BookName { get; set; }
     }
 
     public class NotificationDetails
@@ -85,5 +93,31 @@ namespace Models
 
         [BsonElement("userID")]
         public string UserID { get; set; }
+    }
+
+    public class BlockBooks
+    {
+        [BsonIgnore]
+        public string BookID { get; set; }
+
+        [BsonElement("userName")]
+        public string UserName { get; set; }
+
+        [BsonElement("name")]
+        public string Name { get; set; }
+
+        [Required]
+        [BsonElement("author")]
+        public string Author { get; set; }
+
+        [BsonElement("isbnNumber")]
+        public string ISBNNumber { get; set; }
+
+        [BsonElement("edition")]
+        public string Edition { get; set; }
+
+        [BsonElement("created")]
+        public DateTime Created { get; set; }
+
     }
 }
