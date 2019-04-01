@@ -24,7 +24,6 @@ namespace ServiceRepository
 
         public EmailResponse Send(EmailContract contract)
         {
-
             var emailMessage = new SendGridMessage()
             {
                 From = new EmailAddress(contract.FromEmailAddress, contract.Alias),
