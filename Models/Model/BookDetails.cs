@@ -106,7 +106,7 @@ namespace Models
         [BsonElement("userName")]
         public string UserName { get; set; }
 
-        [BsonElement("name")]
+        [BsonElement("bookName")]
         public string Name { get; set; }
 
         [Required]

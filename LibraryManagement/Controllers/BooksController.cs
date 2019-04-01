@@ -34,7 +34,7 @@ namespace LibraryManagement.Controllers
             this.imageRepository = imageRepository;
         }
 
-        [Authorize]
+        [CustomAuthorize]
         [Route("api/Books/GetAllBooks")]
         // GET: api/Books
         public async Task<IHttpActionResult> GetAllBooks()
@@ -53,7 +53,7 @@ namespace LibraryManagement.Controllers
 
         }
 
-        [Authorize]
+        [CustomAuthorize]
         [Route("api/Books/GetAllAvailableBooks")]
         // GET: api/Books
         public async Task<IHttpActionResult> GetAllAvailableBooks()
@@ -71,7 +71,7 @@ namespace LibraryManagement.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [CustomAuthorize]
         [HttpPost]
         [Route("api/Books/AddNewCategoryBook")]
         // POST: api/Books
@@ -294,7 +294,7 @@ namespace LibraryManagement.Controllers
 
         }
 
-        //[Authorize]
+        [CustomAuthorize]
         [HttpGet]
         [Route("api/Books/GetAllIsbnDetails")]
         public async Task<IHttpActionResult> GetAllIsbnDetails()
