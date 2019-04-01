@@ -50,6 +50,9 @@ namespace Models
         [BsonIgnore]
         public string BookID { get; set; }
 
+        [BsonElement("floor")]
+        public int Floor { get; set; }
+
     }
     public class ISBNNumber
     {

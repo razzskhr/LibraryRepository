@@ -173,6 +173,7 @@ namespace ServiceRepository
                 var todoTaskCollection = database.GetCollection<BookDetails>(CollectionConstant.Book_Collection);
                               
                 bookDetails.Created = System.DateTime.Now;
+                if(bookDetails.ISBNNumber.Any())
                 bookDetails.ISBNNumber.FirstOrDefault().Created = System.DateTime.Now;
                 bookDetails.LastUpdated = System.DateTime.Now;
                 bookDetails.NumberOfCopies = bookDetails.NumberOfCopies +1;
