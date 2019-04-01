@@ -34,13 +34,11 @@ namespace LibraryManagement.Controllers
             this.imageRepository = imageRepository;
         }
 
-        //[Authorize]
+        [CustomAuthorize]
         [Route("api/Books/GetAllBooks")]
         // GET: api/Books
         public async Task<IHttpActionResult> GetAllBooks()
         {
-          
-
             List<BookDetails> bookDetails = null;
             try
             {
@@ -55,42 +53,25 @@ namespace LibraryManagement.Controllers
 
         }
 
-        //[Authorize]
+        [CustomAuthorize]
         [Route("api/Books/GetAllAvailableBooks")]
         // GET: api/Books
         public async Task<IHttpActionResult> GetAllAvailableBooks()
         {
             List<BookDetails> bookDetails = null;
-            var re = Request;
-            var headers = re.Headers;
-            var token = headers.Authorization.Parameter;
-
-            if (headers.Contains("Authorization"))
+            try
             {
-                HttpClient client = new HttpClient();
-                HttpResponseMessage response = await client.GetAsync("https://oauth2.googleapis.com/tokeninfo?access_token=" + token);
-               
-                if(response.StatusCode == HttpStatusCode.OK )
-                {
-                   
-                    try
-                    {
-                        bookDetails = await booksRepository.GetAllAvailableBooks();
-                       
-                    }
-                    catch (Exception ex)
-                    {
-                        loggers.LogError(ex);
-                        return InternalServerError();
-                    }
-                }
+                bookDetails = await booksRepository.GetAllAvailableBooks();
+                return Ok(bookDetails);
             }
-            return Ok(bookDetails);
-
-
+            catch (Exception ex)
+            {
+                loggers.LogError(ex);
+                return InternalServerError();
+            }
         }
 
-        [Authorize(Roles = "Admin")]
+        [CustomAuthorize]
         [HttpPost]
         [Route("api/Books/AddNewCategoryBook")]
         // POST: api/Books
@@ -313,7 +294,7 @@ namespace LibraryManagement.Controllers
 
         }
 
-        //[Authorize]
+        [CustomAuthorize]
         [HttpGet]
         [Route("api/Books/GetAllIsbnDetails")]
         public async Task<IHttpActionResult> GetAllIsbnDetails()
