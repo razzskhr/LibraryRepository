@@ -34,11 +34,13 @@ namespace LibraryManagement.Controllers
             this.imageRepository = imageRepository;
         }
 
-        [Authorize]
+        //[Authorize]
         [Route("api/Books/GetAllBooks")]
         // GET: api/Books
         public async Task<IHttpActionResult> GetAllBooks()
         {
+          
+
             List<BookDetails> bookDetails = null;
             try
             {
@@ -53,22 +55,39 @@ namespace LibraryManagement.Controllers
 
         }
 
-        [Authorize]
+        //[Authorize]
         [Route("api/Books/GetAllAvailableBooks")]
         // GET: api/Books
         public async Task<IHttpActionResult> GetAllAvailableBooks()
         {
             List<BookDetails> bookDetails = null;
-            try
+            var re = Request;
+            var headers = re.Headers;
+            var token = headers.Authorization.Parameter;
+
+            if (headers.Contains("Authorization"))
             {
-                bookDetails = await booksRepository.GetAllAvailableBooks();
-                return Ok(bookDetails);
+                HttpClient client = new HttpClient();
+                HttpResponseMessage response = await client.GetAsync("https://oauth2.googleapis.com/tokeninfo?access_token=" + token);
+               
+                if(response.StatusCode == HttpStatusCode.OK )
+                {
+                   
+                    try
+                    {
+                        bookDetails = await booksRepository.GetAllAvailableBooks();
+                       
+                    }
+                    catch (Exception ex)
+                    {
+                        loggers.LogError(ex);
+                        return InternalServerError();
+                    }
+                }
             }
-            catch (Exception ex)
-            {
-                loggers.LogError(ex);
-                return InternalServerError();
-            }
+            return Ok(bookDetails);
+
+
         }
 
         [Authorize(Roles = "Admin")]
